@@ -12,7 +12,7 @@ Light::Light() {
     ld = glm::vec3(0.7, 0.7, 0.7);
 }
 
-void Light::SetShaders() {
+void Light::setShaders() {
     glUniform4fv(lPosParameter, 1, glm::value_ptr(lPos));
     glUniform3fv(laParameter, 1, glm::value_ptr(la));
     glUniform3fv(ldParameter, 1, glm::value_ptr(ld));

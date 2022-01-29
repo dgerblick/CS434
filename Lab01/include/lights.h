@@ -9,15 +9,15 @@ namespace dng {
 class Light {
 public:
     Light();
-    void SetPos(glm::vec4 par) { lPos = par; };
-    void SetLa(glm::vec3 par) { la = par; };
-    void SetLs(glm::vec3 par) { ls = par; };
-    void SetLd(glm::vec3 par) { ld = par; };
-    void SetLaToShader(GLuint uniform) { laParameter = uniform; };
-    void SetLdToShader(GLuint uniform) { ldParameter = uniform; };
-    void SetLsToShader(GLuint uniform) { lsParameter = uniform; };
-    void SetLposToShader(GLuint uniform) { lPosParameter = uniform; };
-    void SetShaders();
+    void setPos(glm::vec4 par) { lPos = par; };
+    void setLa(glm::vec3 par) { la = par; };
+    void setLs(glm::vec3 par) { ls = par; };
+    void setLd(glm::vec3 par) { ld = par; };
+    void setLaToShader(GLuint uniform) { laParameter = uniform; };
+    void setLdToShader(GLuint uniform) { ldParameter = uniform; };
+    void setLsToShader(GLuint uniform) { lsParameter = uniform; };
+    void setLposToShader(GLuint uniform) { lPosParameter = uniform; };
+    void setShaders();
 
 private:
     glm::vec4 lPos;      // position

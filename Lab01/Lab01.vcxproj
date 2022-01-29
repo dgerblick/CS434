@@ -12,13 +12,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\cube.cpp" />
     <ClCompile Include="src\lights.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\shaders.cpp" />
     <ClCompile Include="src\shapes.cpp" />
+    <ClCompile Include="src\sphere.cpp" />
   </ItemGroup>
-    <ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\cube.h" />
     <ClInclude Include="include\lights.h" />
+    <ClInclude Include="include\material.h" />
     <ClInclude Include="include\shaders.h" />
     <ClInclude Include="include\shapes.h" />
   </ItemGroup>

@@ -7,8 +7,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <shaders.h>
-#include <shapes.h>
 #include <lights.h>
+#include <shapes.h>
+#include <sphere.h>
 
 bool needRedisplay = false;
 dng::Shapes* sphere;
@@ -58,22 +59,22 @@ void Arm(glm::mat4 m) {
     // let's use instancing
     m = glm::translate(m, glm::vec3(0, 0.5, 0.0));
     m = glm::scale(m, glm::vec3(1.0f, 1.0f, 1.0f));
-    sphere->SetModel(m);
+    sphere->setModel(m);
     // now the normals
     glm::mat3 modelViewN = glm::mat3(view * m);
     modelViewN = glm::transpose(glm::inverse(modelViewN));
-    sphere->SetModelViewN(modelViewN);
-    sphere->Render();
+    sphere->setModelViewN(modelViewN);
+    sphere->render();
 
     m = glm::translate(m, glm::vec3(0.0, 0.5, 0.0));
     m = glm::rotate(m, -20.0f * ftime, glm::vec3(0.0, 0.0, 1.0));
     m = glm::translate(m, glm::vec3(0.0, 1.5, 0.0));
-    sphere->SetModel(glm::scale(m, glm::vec3(0.5f, 1.0f, 0.5f)));
+    sphere->setModel(glm::scale(m, glm::vec3(0.5f, 1.0f, 0.5f)));
 
     modelViewN = glm::mat3(view * m);
     modelViewN = glm::transpose(glm::inverse(modelViewN));
-    sphere->SetModelViewN(modelViewN);
-    sphere->Render();
+    sphere->setModelViewN(modelViewN);
+    sphere->render();
 }
 
 // the main rendering function
@@ -99,8 +100,8 @@ void RenderObjects() {
     pos.y = -10;
     pos.z = 20 * cos(ftime / 12);
     pos.w = 1;
-    light.SetPos(pos);
-    light.SetShaders();
+    light.setPos(pos);
+    light.setShaders();
     for (int i = -range; i < range; i++) {
         for (int j = -range; j < range; j++) {
             glm::mat4 m = glm::translate(glm::mat4(1.0), glm::vec3(4 * i, 0, 4 * j));
@@ -129,30 +130,30 @@ void Kbd(unsigned char a, int x, int y) {
             break;
         case 'r':
         case 'R': {
-            sphere->SetKd(glm::vec3(1, 0, 0));
+            sphere->setKd(glm::vec3(1, 0, 0));
             break;
         }
         case 'g':
         case 'G': {
-            sphere->SetKd(glm::vec3(0, 1, 0));
+            sphere->setKd(glm::vec3(0, 1, 0));
             break;
         }
         case 'b':
         case 'B': {
-            sphere->SetKd(glm::vec3(0, 0, 1));
+            sphere->setKd(glm::vec3(0, 0, 1));
             break;
         }
         case 'w':
         case 'W': {
-            sphere->SetKd(glm::vec3(0.7, 0.7, 0.7));
+            sphere->setKd(glm::vec3(0.7, 0.7, 0.7));
             break;
         }
         case '+': {
-            sphere->SetSh(sh += 1);
+            sphere->setSh(sh += 1);
             break;
         }
         case '-': {
-            sphere->SetSh(sh -= 1);
+            sphere->setSh(sh -= 1);
             if (sh < 1)
                 sh = 1;
             break;
@@ -228,26 +229,26 @@ void InitializeProgram(GLuint* program) {
     params.ksParameter = glGetUniformLocation(*program, "mat.ks");
     params.shParameter = glGetUniformLocation(*program, "mat.sh");
     // now the light properties
-    light.SetLaToShader(glGetUniformLocation(*program, "light.la"));
-    light.SetLdToShader(glGetUniformLocation(*program, "light.ld"));
-    light.SetLsToShader(glGetUniformLocation(*program, "light.ls"));
-    light.SetLposToShader(glGetUniformLocation(*program, "light.lPos"));
+    light.setLaToShader(glGetUniformLocation(*program, "light.la"));
+    light.setLdToShader(glGetUniformLocation(*program, "light.ld"));
+    light.setLsToShader(glGetUniformLocation(*program, "light.ls"));
+    light.setLposToShader(glGetUniformLocation(*program, "light.lPos"));
 }
 
 void InitShapes(ShaderParams* params) {
     // create one unit sphere in the origin
     sphere = new dng::Sphere(50, 50, 1);
-    sphere->SetKa(glm::vec3(0.1, 0.1, 0.1));
-    sphere->SetKs(glm::vec3(0, 0, 1));
-    sphere->SetKd(glm::vec3(0.7, 0.7, 0.7));
-    sphere->SetSh(200);
-    sphere->SetModel(glm::mat4(1.0));
-    sphere->SetModelMatrixParamToShader(params->modelParameter);
-    sphere->SetModelViewNMatrixParamToShader(params->modelViewNParameter);
-    sphere->SetKaToShader(params->kaParameter);
-    sphere->SetKdToShader(params->kdParameter);
-    sphere->SetKsToShader(params->ksParameter);
-    sphere->SetShToShader(params->shParameter);
+    sphere->setKa(glm::vec3(0.1, 0.1, 0.1));
+    sphere->setKs(glm::vec3(0, 0, 1));
+    sphere->setKd(glm::vec3(0.7, 0.7, 0.7));
+    sphere->setSh(200);
+    sphere->setModel(glm::mat4(1.0));
+    sphere->setModelMatrixParamToShader(params->modelParameter);
+    sphere->setModelViewNMatrixParamToShader(params->modelViewNParameter);
+    sphere->setKaToShader(params->kaParameter);
+    sphere->setKdToShader(params->kdParameter);
+    sphere->setKsToShader(params->ksParameter);
+    sphere->setShToShader(params->shParameter);
 }
 
 int main(int argc, char** argv) {
