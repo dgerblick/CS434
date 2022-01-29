@@ -5,12 +5,24 @@
 #include <string>
 #include <vector>
 
-namespace dng {
+namespace dng::shaders {
 
-std::string LoadShader(const std::string& strShaderFilename);
-GLuint CreateShader(GLenum eShaderType, const std::string& strShaderFile);
-GLuint CreateProgram(const std::vector<GLuint>& shaderList);
+std::string loadShader(const std::string& strShaderFilename);
+GLuint createShader(GLenum eShaderType, const std::string& strShaderFile);
+GLuint createProgram(const std::vector<GLuint>& shaderList);
 
-}  // namespace dng
+struct Params {
+    GLint modelParameter;       // modeling matrix
+    GLint modelViewNParameter;  // modeliview for normals
+    GLint viewParameter;        // viewing matrix
+    GLint projParameter;        // projection matrix
+    // material
+    GLint kaParameter;  // ambient material
+    GLint kdParameter;  // diffuse material
+    GLint ksParameter;  // specular material
+    GLint shParameter;  // shinenness material
+};
+
+}  // namespace dng::shaders
 
 #endif  // __SHADERS_H__

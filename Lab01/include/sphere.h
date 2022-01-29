@@ -15,9 +15,8 @@ public:
 private:
     GLuint stacks, slices;
     GLfloat r;
-    void Sphere::generate(int stacks, int slices, GLfloat r);
+    void generate(int stacks, int slices, GLfloat r);
     void initArrays();
-    void generate();
 };
 
 }  // namespace dng

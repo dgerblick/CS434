@@ -8,9 +8,9 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-namespace dng {
+namespace dng::shaders {
 
-void ShaderLog(GLint shader, GLenum eShaderType) {
+void shaderLog(GLint shader, GLenum eShaderType) {
     GLint infoLogLength;
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
 
@@ -39,7 +39,7 @@ void ShaderLog(GLint shader, GLenum eShaderType) {
     exit(-1);
 }
 
-std::string FindFile(const std::string& strFilename) {
+std::string findFile(const std::string& strFilename) {
     std::ifstream testFile(strFilename.c_str());
     if (testFile.is_open())
         return strFilename;
@@ -49,8 +49,8 @@ std::string FindFile(const std::string& strFilename) {
     }
 }
 
-std::string LoadShader(const std::string& strShaderFilename) {
-    std::string strFilename = FindFile(strShaderFilename);
+std::string loadShader(const std::string& strShaderFilename) {
+    std::string strFilename = findFile(strShaderFilename);
     std::ifstream shaderFile(strFilename.c_str());
     std::stringstream shaderData;
     shaderData << shaderFile.rdbuf();
@@ -59,7 +59,7 @@ std::string LoadShader(const std::string& strShaderFilename) {
     return shaderData.str();
 }
 
-GLuint CreateShader(GLenum eShaderType, const std::string& strShader) {
+GLuint createShader(GLenum eShaderType, const std::string& strShader) {
     GLuint shader = glCreateShader(eShaderType);
     const char* strData = strShader.c_str();
     glShaderSource(shader, 1, &strData, NULL);
@@ -69,7 +69,7 @@ GLuint CreateShader(GLenum eShaderType, const std::string& strShader) {
     GLint status;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
     if (status == GL_FALSE) {
-        ShaderLog(shader, eShaderType);
+        shaderLog(shader, eShaderType);
     } else {
         std::cout << "--------------------Shader---------------------\n"
                   << strData << '\n'
@@ -78,7 +78,7 @@ GLuint CreateShader(GLenum eShaderType, const std::string& strShader) {
     return shader;
 }
 
-GLuint CreateProgram(const std::vector<GLuint>& shaderList) {
+GLuint createProgram(const std::vector<GLuint>& shaderList) {
     GLuint program = glCreateProgram();
 
     for (size_t iLoop = 0; iLoop < shaderList.size(); iLoop++)
@@ -89,7 +89,7 @@ GLuint CreateProgram(const std::vector<GLuint>& shaderList) {
     GLint status;
     glGetProgramiv(program, GL_LINK_STATUS, &status);
     if (status == GL_FALSE)
-        ShaderLog(GL_LINK_STATUS, program);
+        shaderLog(GL_LINK_STATUS, program);
     //{
     //	GLint infoLogLength;
     //	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
