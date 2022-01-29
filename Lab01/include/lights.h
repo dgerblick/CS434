@@ -4,9 +4,11 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-class LightC {
+namespace dng {
+
+class Light {
 public:
-    LightC();
+    Light();
     void SetPos(glm::vec4 par) { lPos = par; };
     void SetLa(glm::vec3 par) { la = par; };
     void SetLs(glm::vec3 par) { ls = par; };
@@ -27,5 +29,7 @@ private:
     GLuint lsParameter;
     GLuint lPosParameter;
 };
+
+}  // namespace dng
 
 #endif  // __LIGHTS_H__

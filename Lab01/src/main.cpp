@@ -6,13 +6,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/half_float.hpp>
 #include <shaders.h>
 #include <shapes.h>
 #include <lights.h>
 
 bool needRedisplay = false;
-ShapesC* sphere;
+dng::Shapes* sphere;
 
 // shader program ID
 GLuint shaderProgram;
@@ -21,7 +20,7 @@ glm::mat4 view = glm::mat4(1.0);
 glm::mat4 proj = glm::perspective(80.0f,           // fovy
                                   1.0f,            // aspect
                                   0.01f, 1000.f);  // near, far
-class ShaderParamsC {
+class ShaderParams {
 public:
     GLint modelParameter;       // modeling matrix
     GLint modelViewNParameter;  // modeliview for normals
@@ -34,7 +33,7 @@ public:
     GLint shParameter;  // shinenness material
 } params;
 
-LightC light;
+dng::Light light;
 
 // the main window size
 GLint wWindow = 800;
@@ -207,17 +206,17 @@ void Mouse(int button, int state, int x, int y) {
 }
 
 void InitializeProgram(GLuint* program) {
-    std::vector<GLuint> shaderList;
+    std::vector<GLuint> shaders;
 
     // load and compile shaders
-    shaderList.push_back(CreateShader(GL_VERTEX_SHADER, LoadShader("shaders/phong.vert")));
-    shaderList.push_back(CreateShader(GL_FRAGMENT_SHADER, LoadShader("shaders/phong.frag")));
+    shaders.push_back(dng::CreateShader(GL_VERTEX_SHADER, dng::LoadShader("shaders/phong.vert")));
+    shaders.push_back(dng::CreateShader(GL_FRAGMENT_SHADER, dng::LoadShader("shaders/phong.frag")));
 
     // create the shader program and attach the shaders to it
-    *program = CreateProgram(shaderList);
+    *program = dng::CreateProgram(shaders);
 
     // delete shaders (they are on the GPU now)
-    std::for_each(shaderList.begin(), shaderList.end(), glDeleteShader);
+    std::for_each(shaders.begin(), shaders.end(), glDeleteShader);
 
     params.modelParameter = glGetUniformLocation(*program, "model");
     params.modelViewNParameter = glGetUniformLocation(*program, "modelViewN");
@@ -235,9 +234,9 @@ void InitializeProgram(GLuint* program) {
     light.SetLposToShader(glGetUniformLocation(*program, "light.lPos"));
 }
 
-void InitShapes(ShaderParamsC* params) {
+void InitShapes(ShaderParams* params) {
     // create one unit sphere in the origin
-    sphere = new SphereC(50, 50, 1);
+    sphere = new dng::Sphere(50, 50, 1);
     sphere->SetKa(glm::vec3(0.1, 0.1, 0.1));
     sphere->SetKs(glm::vec3(0, 0, 1));
     sphere->SetKd(glm::vec3(0.7, 0.7, 0.7));

@@ -8,6 +8,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+namespace dng {
+
 // help procedure that send values from glm::vec3 to a STL vector of float
 // used for creating VBOs
 inline void AddVertex(std::vector<GLfloat>* a, const glm::vec3* v) {
@@ -16,33 +18,33 @@ inline void AddVertex(std::vector<GLfloat>* a, const glm::vec3* v) {
     a->push_back(v->z);
 }
 
-void ShapesC::Render() {
+void Shapes::Render() {
     std::cout << "Base class cannot render\n";
 }
 
-void ShapesC::SetModel(glm::mat4 tmp) {
+void Shapes::SetModel(glm::mat4 tmp) {
     model = tmp;
 }
 
-void ShapesC::SetModelViewN(glm::mat3 tmp) {
+void Shapes::SetModelViewN(glm::mat3 tmp) {
     modelViewN = tmp;
 }
 
-void ShapesC::SetModelMatrixParamToShader(GLuint uniform) {
+void Shapes::SetModelMatrixParamToShader(GLuint uniform) {
     modelParameter = uniform;
 }
 
-void ShapesC::SetModelViewNMatrixParamToShader(GLuint uniform) {
+void Shapes::SetModelViewNMatrixParamToShader(GLuint uniform) {
     modelViewNParameter = uniform;
 }
 
-void ShapesC::SetColor(GLubyte r, GLubyte b, GLubyte g) {
+void Shapes::SetColor(GLubyte r, GLubyte b, GLubyte g) {
     color[0] = r;
     color[1] = g;
     color[2] = b;
 }
 
-void SphereC::Render() {
+void Sphere::Render() {
     glBindVertexArray(vaID);
     //	glBindBuffer(GL_ARRAY_BUFFER, buffer);
     //	glEnableVertexAttribArray(0);
@@ -58,7 +60,7 @@ void SphereC::Render() {
     glDrawArrays(GL_TRIANGLES, 0, 3 * points);
 }
 
-void SphereC::Generate(int stacks, int slices, GLfloat r) {
+void Sphere::Generate(int stacks, int slices, GLfloat r) {
     glm::vec3 v;
 
     GLfloat deltaTheta = 2 * M_PI / (GLfloat) slices;
@@ -104,7 +106,7 @@ void SphereC::Generate(int stacks, int slices, GLfloat r) {
     }
 }
 
-void SphereC::InitArrays() {
+void Sphere::InitArrays() {
     points = vertex.size();
     normals = normal.size();
 
@@ -132,12 +134,12 @@ void SphereC::InitArrays() {
     normal.clear();  // no need for the normal data, it is on the GPU now
 }
 
-SphereC::SphereC() {
+Sphere::Sphere() {
     Generate(55, 55, 1.f);
     InitArrays();
 }
 
-SphereC::SphereC(int stacks, int slices, GLfloat r) {
+Sphere::Sphere(int stacks, int slices, GLfloat r) {
     this->stacks = stacks;
     this->slices = slices;
     this->r = r;
@@ -216,3 +218,5 @@ void CubeC::Render() {
     glUniformMatrix4fv(modelParameter, 1, GL_FALSE, glm::value_ptr(model));
     glDrawArrays(GL_TRIANGLES, 0, 3 * points);
 }
+
+}  // namespace dng

@@ -8,6 +8,8 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
+namespace dng {
+
 void ShaderLog(GLint shader, GLenum eShaderType) {
     GLint infoLogLength;
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
@@ -103,3 +105,5 @@ GLuint CreateProgram(const std::vector<GLuint>& shaderList) {
 
     return program;
 }
+
+}  // namespace dng

@@ -6,7 +6,9 @@
 #include <string>
 #include <vector>
 
-class MaterialC {
+namespace dng {
+
+class Material {
 public:
     void SetKa(glm::vec3 amb) { ka = amb; }
     void SetKd(glm::vec3 diff) { kd = diff; }
@@ -29,7 +31,7 @@ protected:
 };
 
 // Base class for shapes
-class ShapesC : public MaterialC {
+class Shapes : public Material {
 public:
     virtual void SetModelMatrixParamToShader(GLuint uniform);
     virtual void SetModelViewNMatrixParamToShader(GLuint uniform);
@@ -54,23 +56,23 @@ protected:
     GLuint normals;
 };
 
-// derived class from ShapesC
-class SphereC : public ShapesC {
+// derived class from Shapes
+class Sphere : public Shapes {
 public:
-    SphereC();
-    SphereC(int stacks, int slices, GLfloat r);
+    Sphere();
+    Sphere(int stacks, int slices, GLfloat r);
     virtual void Render();
 
 private:
     GLuint stacks, slices;
     GLfloat r;
-    void SphereC::Generate(int stacks, int slices, GLfloat r);
+    void Sphere::Generate(int stacks, int slices, GLfloat r);
     void InitArrays();
     void Generate();
 };
 
-// derived class from ShapesC
-class CubeC : public ShapesC {
+// derived class from Shapes
+class CubeC : public Shapes {
 public:
     CubeC();
     virtual void Render();
@@ -79,5 +81,7 @@ private:
     void InitArrays();
     void Generate();
 };
+
+}  // namespace dng
 
 #endif  // __SHAPES_H__
