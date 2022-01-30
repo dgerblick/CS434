@@ -16,8 +16,8 @@ int main(int argc, char** argv) {
     glutIdleFunc(dng::idle);
     glutMouseFunc(dng::mouse);
     glutReshapeFunc(dng::reshape);
-    glutKeyboardFunc(dng::kbd);              //+ and -
-    glutSpecialUpFunc(dng::specKbdRelease);  // smooth motion
+    glutKeyboardFunc(dng::kbd);
+    glutSpecialUpFunc(dng::specKbdRelease);
     glutSpecialFunc(dng::specKbdPress);
     dng::initializeProgram(&dng::shaderProgram);
     dng::initShapes(&dng::params);

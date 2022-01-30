@@ -14,7 +14,8 @@ namespace dng {
 extern bool needRedisplay;
 extern GLuint shaderProgram;
 extern GLfloat ftime;
-extern glm::mat4 view;
+extern glm::vec3 cameraPos;
+extern glm::vec2 cameraRot;
 extern glm::mat4 proj;
 extern shaders::Params params;
 extern Light light;
@@ -33,6 +34,11 @@ void specKbdRelease(int a, int x, int y);
 void mouse(int button, int state, int x, int y);
 void initializeProgram(GLuint* program);
 void initShapes(shaders::Params* params);
+glm::vec3 lookVec();
+
+const float LOOK_KEY_STEP = 0.1f;
+const float MOVE_KEY_STEP = 0.5f;
+const glm::vec3 UP(0.0f, 1.0f, 0.0f);
 
 }  // namespace dng
 

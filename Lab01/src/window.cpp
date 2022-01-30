@@ -20,8 +20,9 @@ bool needRedisplay = false;
 // Shapes* sphere;
 GLuint shaderProgram;
 GLfloat ftime = 0.f;
-glm::mat4 view = glm::mat4(1.0);
-glm::mat4 proj = glm::perspective(80.0f, 1.0f, 0.01f, 1000.f);
+glm::vec3 cameraPos(0.0f, 1.0f, 0.0f);
+glm::vec2 cameraRot(0.0f, 0.0f);
+glm::mat4 proj;
 shaders::Params params;
 Light light;
 std::vector<std::unique_ptr<Shapes>> shapes;
@@ -33,6 +34,7 @@ float sh = 1;
 void reshape(int w, int h) {
     glViewport(0, 0, w, h);
     glEnable(GL_DEPTH_TEST);
+    proj = glm::perspective(80.0f, (float) w / h, 0.01f, 1000.f);
     // remember the settings for the camera
     wWindow = w;
     hWindow = h;
@@ -47,13 +49,7 @@ void renderObjects() {
     glLineWidth(1);
     // set the projection and view once for the scene
     glUniformMatrix4fv(params.projParameter, 1, GL_FALSE, glm::value_ptr(proj));
-    view = glm::lookAt(glm::vec3(25 * sin(ftime / 40.f), 5.f, 15 * cos(ftime / 40.f)),  // eye
-                       glm::vec3(0, 0, 0),   // destination
-                       glm::vec3(0, 1, 0));  // up
-    // view = glm::lookAt(glm::vec3(10.f, 5.f, 10.f),  // eye
-    //                   glm::vec3(0, 0, 0),          // destination
-    //                   glm::vec3(0, 1, 0));         // up
-
+    glm::mat4 view = glm::lookAt(cameraPos, cameraPos + lookVec(), UP);
     glUniformMatrix4fv(params.viewParameter, 1, GL_FALSE, glm::value_ptr(view));
     // set the light
     static glm::vec4 pos;
@@ -85,6 +81,31 @@ void kbd(unsigned char a, int x, int y) {
     case 27:
         exit(0);
         break;
+    case 'w':
+        cameraPos += MOVE_KEY_STEP * glm::cross(glm::cross(UP, lookVec()), UP);
+        break;
+    case 'a':
+        cameraPos -= MOVE_KEY_STEP * glm::cross(lookVec(), UP);
+        break;
+    case 's':
+        cameraPos -= MOVE_KEY_STEP * glm::cross(glm::cross(UP, lookVec()), UP);
+        break;
+    case 'd':
+        cameraPos += MOVE_KEY_STEP * glm::cross(lookVec(), UP);
+        break;
+    case '.':
+        std::cout << "cameraPos:\n"
+                  << "  x: " << cameraPos.x << '\n'
+                  << "  y: " << cameraPos.y << '\n'
+                  << "  z: " << cameraPos.z << '\n'
+                  << "cameraRot:\n"
+                  << "  x: " << cameraRot.x << '\n'
+                  << "  y: " << cameraRot.y << '\n'
+                  << "lookVec:\n"
+                  << "  x: " << lookVec().x << '\n'
+                  << "  y: " << lookVec().y << '\n'
+                  << "  z: " << lookVec().z << '\n';
+        break;
     case '+':
     case '=':
         sh += 1;
@@ -100,7 +121,6 @@ void kbd(unsigned char a, int x, int y) {
             shape->setSh(sh);
         break;
     }
-    std::cout << "shineness=" << sh << '\n';
     glutPostRedisplay();
 }
 
@@ -108,12 +128,24 @@ void kbd(unsigned char a, int x, int y) {
 void specKbdPress(int a, int x, int y) {
     switch (a) {
     case GLUT_KEY_LEFT:
+        cameraRot.y += LOOK_KEY_STEP;
+        if (cameraRot.y > 2 * M_PI)
+            cameraRot.y -= 2 * M_PI;
         break;
     case GLUT_KEY_RIGHT:
+        cameraRot.y -= LOOK_KEY_STEP;
+        if (cameraRot.y < 0)
+            cameraRot.y += 2 * M_PI;
         break;
     case GLUT_KEY_DOWN:
+        cameraRot.x -= LOOK_KEY_STEP;
+        if (cameraRot.x < -M_PI_2)
+            cameraRot.x = -M_PI_2;
         break;
     case GLUT_KEY_UP:
+        cameraRot.x += LOOK_KEY_STEP;
+        if (cameraRot.x > M_PI_2)
+            cameraRot.x = M_PI_2;
         break;
     }
     glutPostRedisplay();
@@ -167,6 +199,9 @@ void initializeProgram(GLuint* program) {
     light.setLdToShader(glGetUniformLocation(*program, "light.ld"));
     light.setLsToShader(glGetUniformLocation(*program, "light.ls"));
     light.setLposToShader(glGetUniformLocation(*program, "light.lPos"));
+
+    // Set up camera
+    proj = glm::perspective(80.0f, (float) wWindow / hWindow, 0.01f, 1000.f);
 }
 
 void initShapes(shaders::Params* params) {
@@ -212,6 +247,11 @@ void initShapes(shaders::Params* params) {
             sphere->setShToShader(params->shParameter);
         }
     }
+}
+
+glm::vec3 lookVec() {
+    return glm::vec3(std::cos(cameraRot.x) * std::sin(cameraRot.y), std::sin(cameraRot.x),
+                     std::cos(cameraRot.x) * std::cos(cameraRot.y));
 }
 
 }  // namespace dng
