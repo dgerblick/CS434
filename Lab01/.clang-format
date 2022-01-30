@@ -19,7 +19,7 @@ ConstructorInitializerAllOnOneLineOrOnePerLine: true
 DerivePointerBinding: false
 PointerBindsToType: true
 ExperimentalAutoDetectBinPacking: false
-IndentCaseLabels: true
+IndentCaseLabels: false
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: None
 ObjCSpaceBeforeProtocolList: true

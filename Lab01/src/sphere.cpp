@@ -1,7 +1,4 @@
-#include <shapes.h>
 #include <sphere.h>
-#include <cube.h>
-#include <iostream>
 #include <string>
 #include <vector>
 #include <cmath>
@@ -40,66 +37,38 @@ void Sphere::generate(int stacks, int slices, GLfloat r) {
             GLfloat theta = j * deltaTheta;
             // the first triangle
             v = glm::vec3(r * cos(theta) * sin(phi), r * sin(theta) * sin(phi), r * cos(phi));
-            addVertex(&vertex, &v);  // add the vertex
+            addVertex(vertex, v);  // add the vertex
             glm::normalize(v);       // normalize it
-            addVertex(&normal, &v);  // and add the normal vector
+            addVertex(normal, v);  // and add the normal vector
             v = glm::vec3(r * cos(theta + deltaTheta) * sin(phi),
                           r * sin(theta + deltaTheta) * sin(phi), r * cos(phi));
-            addVertex(&vertex, &v);  // add the vertex
+            addVertex(vertex, v);  // add the vertex
             glm::normalize(v);       // normalize it
-            addVertex(&normal, &v);  // and add the normal vector
+            addVertex(normal, v);  // and add the normal vector
             v = glm::vec3(r * cos(theta) * sin(phi + deltaPhi),
                           r * sin(theta) * sin(phi + deltaPhi), r * cos(phi + deltaPhi));
-            addVertex(&vertex, &v);  // add the vertex
+            addVertex(vertex, v);  // add the vertex
             glm::normalize(v);       // normalize it
-            addVertex(&normal, &v);  // and add the normal vector
+            addVertex(normal, v);  // and add the normal vector
             // the second triangle
             v = glm::vec3(r * cos(theta + deltaTheta) * sin(phi),
                           r * sin(theta + deltaTheta) * sin(phi), r * cos(phi));
-            addVertex(&vertex, &v);  // add the vertex
+            addVertex(vertex, v);  // add the vertex
             glm::normalize(v);       // normalize it
-            addVertex(&normal, &v);  // and add the normal vector
+            addVertex(normal, v);  // and add the normal vector
             v = glm::vec3(r * cos(theta) * sin(phi + deltaPhi),
                           r * sin(theta) * sin(phi + deltaPhi), r * cos(phi + deltaPhi));
-            addVertex(&vertex, &v);  // add the vertex
+            addVertex(vertex, v);  // add the vertex
             glm::normalize(v);       // normalize it
-            addVertex(&normal, &v);  // and add the normal vector
+            addVertex(normal, v);  // and add the normal vector
             v = glm::vec3(r * cos(theta + deltaTheta) * sin(phi + deltaPhi),
                           r * sin(theta + deltaTheta) * sin(phi + deltaPhi),
                           r * cos(phi + deltaPhi));
-            addVertex(&vertex, &v);  // add the vertex
+            addVertex(vertex, v);  // add the vertex
             glm::normalize(v);       // normalize it
-            addVertex(&normal, &v);  // and add the normal vector
+            addVertex(normal, v);  // and add the normal vector
         }
     }
-}
-
-void Sphere::initArrays() {
-    points = vertex.size();
-    normals = normal.size();
-
-    // get the vertex array handle and bind it
-    glGenVertexArrays(1, &vaID);
-    glBindVertexArray(vaID);
-
-    // the vertex array will have two vbos, vertices and normals
-    glGenBuffers(2, vboHandles);
-    GLuint verticesID = vboHandles[0];
-    GLuint normalsID = vboHandles[1];
-
-    // send vertices
-    glBindBuffer(GL_ARRAY_BUFFER, verticesID);
-    glBufferData(GL_ARRAY_BUFFER, points * sizeof(GLfloat), &vertex[0], GL_STATIC_DRAW);
-    glVertexAttribPointer((GLuint) 0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
-    vertex.clear();  // no need for the vertex data, it is on the GPU now
-
-    // send normals
-    glBindBuffer(GL_ARRAY_BUFFER, normalsID);
-    glBufferData(GL_ARRAY_BUFFER, normals * sizeof(GLfloat), &normal[0], GL_STATIC_DRAW);
-    glVertexAttribPointer((GLuint) 1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(1);
-    normal.clear();  // no need for the normal data, it is on the GPU now
 }
 
 Sphere::Sphere() {

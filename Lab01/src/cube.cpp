@@ -10,18 +10,6 @@
 
 namespace dng {
 
-void Cube::initArrays() {
-    glGenVertexArrays(1, &vaID);
-    glBindVertexArray(vaID);
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    points = vertex.size();
-    glBufferData(GL_ARRAY_BUFFER, points * sizeof(GLfloat), &vertex[0], GL_STATIC_DRAW);
-    glVertexAttribPointer((GLuint) 0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
-    vertex.clear();  // no need for the vertex data, it is on the GPU now
-}
-
 Cube::Cube() {
     generate();
     initArrays();
@@ -36,42 +24,55 @@ void Cube::generate() {
     const glm::vec3 F = glm::vec3(+0.5f, -0.5f, +0.5f);
     const glm::vec3 G = glm::vec3(+0.5f, +0.5f, +0.5f);
     const glm::vec3 H = glm::vec3(-0.5f, +0.5f, +0.5f);
-    addVertex(&vertex, &A);
-    addVertex(&vertex, &B);
-    addVertex(&vertex, &C);
-    addVertex(&vertex, &A);
-    addVertex(&vertex, &C);
-    addVertex(&vertex, &D);
-    addVertex(&vertex, &A);
-    addVertex(&vertex, &E);
-    addVertex(&vertex, &F);
-    addVertex(&vertex, &A);
-    addVertex(&vertex, &F);
-    addVertex(&vertex, &B);
-    addVertex(&vertex, &B);
-    addVertex(&vertex, &F);
-    addVertex(&vertex, &G);
-    addVertex(&vertex, &B);
-    addVertex(&vertex, &G);
-    addVertex(&vertex, &C);
-    addVertex(&vertex, &C);
-    addVertex(&vertex, &G);
-    addVertex(&vertex, &H);
-    addVertex(&vertex, &C);
-    addVertex(&vertex, &H);
-    addVertex(&vertex, &D);
-    addVertex(&vertex, &D);
-    addVertex(&vertex, &H);
-    addVertex(&vertex, &E);
-    addVertex(&vertex, &D);
-    addVertex(&vertex, &E);
-    addVertex(&vertex, &A);
-    addVertex(&vertex, &E);
-    addVertex(&vertex, &F);
-    addVertex(&vertex, &G);
-    addVertex(&vertex, &E);
-    addVertex(&vertex, &G);
-    addVertex(&vertex, &H);
+
+    addVertex(vertex, A);
+    addVertex(vertex, B);
+    addVertex(vertex, C);
+    addVertex(vertex, A);
+    addVertex(vertex, C);
+    addVertex(vertex, D);
+    for (int i = 0; i < 6; i++)
+        addVertex(normal, glm::vec3(0.0f, 0.0f, 1.0f));
+    addVertex(vertex, A);
+    addVertex(vertex, E);
+    addVertex(vertex, F);
+    addVertex(vertex, A);
+    addVertex(vertex, F);
+    addVertex(vertex, B);
+    for (int i = 0; i < 6; i++)
+        addVertex(normal, glm::vec3(0.0f, -1.0f, 0.0f));
+    addVertex(vertex, B);
+    addVertex(vertex, F);
+    addVertex(vertex, G);
+    addVertex(vertex, B);
+    addVertex(vertex, G);
+    addVertex(vertex, C);
+    for (int i = 0; i < 6; i++)
+        addVertex(normal, glm::vec3(1.0f, 0.0f, 0.0f));
+    addVertex(vertex, C);
+    addVertex(vertex, G);
+    addVertex(vertex, H);
+    addVertex(vertex, C);
+    addVertex(vertex, H);
+    addVertex(vertex, D);
+    for (int i = 0; i < 6; i++)
+        addVertex(normal, glm::vec3(0.0f, 1.0f, 0.0f));
+    addVertex(vertex, D);
+    addVertex(vertex, H);
+    addVertex(vertex, E);
+    addVertex(vertex, D);
+    addVertex(vertex, E);
+    addVertex(vertex, A);
+    for (int i = 0; i < 6; i++)
+        addVertex(normal, glm::vec3(-1.0f, 0.0f, 0.0f));
+    addVertex(vertex, E);
+    addVertex(vertex, F);
+    addVertex(vertex, G);
+    addVertex(vertex, E);
+    addVertex(vertex, G);
+    addVertex(vertex, H);
+    for (int i = 0; i < 6; i++)
+        addVertex(normal, glm::vec3(0.0f, 0.0f, 1.0f));
 }
 
 void Cube::render() {

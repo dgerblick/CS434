@@ -12,7 +12,6 @@ public:
     virtual void render();
 
 private:
-    void initArrays();
     void generate();
 };
 

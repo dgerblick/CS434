@@ -19,18 +19,18 @@ void shaderLog(GLint shader, GLenum eShaderType) {
 
     const char* strShaderType = NULL;
     switch (eShaderType) {
-        case GL_VERTEX_SHADER:
-            strShaderType = "vertex";
-            break;
-        case GL_GEOMETRY_SHADER_EXT:
-            strShaderType = "geometry";
-            break;
-        case GL_FRAGMENT_SHADER:
-            strShaderType = "fragment";
-            break;
-        case GL_LINK_STATUS:
-            strShaderType = "link";
-            break;
+    case GL_VERTEX_SHADER:
+        strShaderType = "vertex";
+        break;
+    case GL_GEOMETRY_SHADER_EXT:
+        strShaderType = "geometry";
+        break;
+    case GL_FRAGMENT_SHADER:
+        strShaderType = "fragment";
+        break;
+    case GL_LINK_STATUS:
+        strShaderType = "link";
+        break;
     }
     fprintf(stderr, "Compile or link failure in %s shader:\n%s\n", strShaderType, strInfoLog);
     fprintf(stderr, "Press ENTER to exit\n");
@@ -106,4 +106,4 @@ GLuint createProgram(const std::vector<GLuint>& shaderList) {
     return program;
 }
 
-}  // namespace dng
+}  // namespace dng::shaders

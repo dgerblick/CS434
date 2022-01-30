@@ -24,7 +24,6 @@ extern GLint hWindow;
 extern float sh;
 
 void reshape(int w, int h);
-//void arm(glm::mat4 m);
 void renderObjects();
 void idle();
 void display();

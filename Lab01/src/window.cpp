@@ -3,6 +3,7 @@
 #include <lights.h>
 #include <shapes.h>
 #include <sphere.h>
+#include <cube.h>
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -37,28 +38,6 @@ void reshape(int w, int h) {
     hWindow = h;
 }
 
-// void arm(glm::mat4 m) {
-//    // let's use instancing
-//    m = glm::translate(m, glm::vec3(0, 0.5, 0.0));
-//    m = glm::scale(m, glm::vec3(1.0f, 1.0f, 1.0f));
-//    sphere->setModel(m);
-//    // now the normals
-//    glm::mat3 modelViewN = glm::mat3(view * m);
-//    modelViewN = glm::transpose(glm::inverse(modelViewN));
-//    sphere->setModelViewN(modelViewN);
-//    sphere->render();
-//
-//    m = glm::translate(m, glm::vec3(0.0, 0.5, 0.0));
-//    m = glm::rotate(m, -20.0f * ftime, glm::vec3(0.0, 0.0, 1.0));
-//    m = glm::translate(m, glm::vec3(0.0, 1.5, 0.0));
-//    sphere->setModel(glm::scale(m, glm::vec3(0.5f, 1.0f, 0.5f)));
-//
-//    modelViewN = glm::mat3(view * m);
-//    modelViewN = glm::transpose(glm::inverse(modelViewN));
-//    sphere->setModelViewN(modelViewN);
-//    sphere->render();
-//}
-
 // the main rendering function
 void renderObjects() {
     const int range = 3;
@@ -68,33 +47,27 @@ void renderObjects() {
     glLineWidth(1);
     // set the projection and view once for the scene
     glUniformMatrix4fv(params.projParameter, 1, GL_FALSE, glm::value_ptr(proj));
-    // view=glm::lookAt(glm::vec3(25*sin(ftime/40.f),5.f,15*cos(ftime/40.f)),//eye
-    //			     glm::vec3(0,0,0),  //destination
-    //			     glm::vec3(0,1,0)); //up
-    view = glm::lookAt(glm::vec3(10.f, 5.f, 10.f),  // eye
-                       glm::vec3(0, 0, 0),          // destination
-                       glm::vec3(0, 1, 0));         // up
+    view = glm::lookAt(glm::vec3(25 * sin(ftime / 40.f), 5.f, 15 * cos(ftime / 40.f)),  // eye
+                       glm::vec3(0, 0, 0),   // destination
+                       glm::vec3(0, 1, 0));  // up
+    // view = glm::lookAt(glm::vec3(10.f, 5.f, 10.f),  // eye
+    //                   glm::vec3(0, 0, 0),          // destination
+    //                   glm::vec3(0, 1, 0));         // up
 
     glUniformMatrix4fv(params.viewParameter, 1, GL_FALSE, glm::value_ptr(view));
     // set the light
     static glm::vec4 pos;
     pos.x = 20 * sin(ftime / 12);
-    pos.y = -10;
+    pos.y = 30;
     pos.z = 20 * cos(ftime / 12);
     pos.w = 1;
     light.setPos(pos);
     light.setShaders();
     for (auto& shape : shapes)
         shape->render();
-    // for (int i = -range; i < range; i++) {
-    //    for (int j = -range; j < range; j++) {
-    //        glm::mat4 m = glm::translate(glm::mat4(1.0), glm::vec3(4 * i, 0, 4 * j));
-    //        arm(m);
-    //    }
-    //}
 }
 
-void idle(void) {
+void idle() {
     glClearColor(0.1, 0.1, 0.1, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     ftime += 0.05;
@@ -103,29 +76,29 @@ void idle(void) {
     glutSwapBuffers();
 }
 
-void display(void) {
+void display() {
 }
 
 // keyboard callback
 void kbd(unsigned char a, int x, int y) {
     switch (a) {
-        case 27:
-            exit(0);
-            break;
-        case '+':
-        case '=':
-            sh += 1;
-            for (auto& shape : shapes)
-                shape->setSh(sh);
-            break;
-        case '_':
-        case '-':
-            sh -= 1;
-            if (sh < 1)
-                sh = 1;
-            for (auto& shape : shapes)
-                shape->setSh(sh);
-            break;
+    case 27:
+        exit(0);
+        break;
+    case '+':
+    case '=':
+        sh += 1;
+        for (auto& shape : shapes)
+            shape->setSh(sh);
+        break;
+    case '_':
+    case '-':
+        sh -= 1;
+        if (sh < 1)
+            sh = 1;
+        for (auto& shape : shapes)
+            shape->setSh(sh);
+        break;
     }
     std::cout << "shineness=" << sh << '\n';
     glutPostRedisplay();
@@ -134,14 +107,14 @@ void kbd(unsigned char a, int x, int y) {
 // special keyboard callback
 void specKbdPress(int a, int x, int y) {
     switch (a) {
-        case GLUT_KEY_LEFT:
-            break;
-        case GLUT_KEY_RIGHT:
-            break;
-        case GLUT_KEY_DOWN:
-            break;
-        case GLUT_KEY_UP:
-            break;
+    case GLUT_KEY_LEFT:
+        break;
+    case GLUT_KEY_RIGHT:
+        break;
+    case GLUT_KEY_DOWN:
+        break;
+    case GLUT_KEY_UP:
+        break;
     }
     glutPostRedisplay();
 }
@@ -149,14 +122,14 @@ void specKbdPress(int a, int x, int y) {
 // called when a special key is released
 void specKbdRelease(int a, int x, int y) {
     switch (a) {
-        case GLUT_KEY_LEFT:
-            break;
-        case GLUT_KEY_RIGHT:
-            break;
-        case GLUT_KEY_DOWN:
-            break;
-        case GLUT_KEY_UP:
-            break;
+    case GLUT_KEY_LEFT:
+        break;
+    case GLUT_KEY_RIGHT:
+        break;
+    case GLUT_KEY_DOWN:
+        break;
+    case GLUT_KEY_UP:
+        break;
     }
     glutPostRedisplay();
 }
@@ -202,14 +175,29 @@ void initShapes(shaders::Params* params) {
     const int minS = 50;
 
     shapes.clear();
-    shapes.reserve(4 * range * range);
+    shapes.reserve(4 * range * range + 1);
+
+    auto& ground = shapes.emplace_back(std::make_unique<Cube>());
+    ground->setKa(glm::vec3(0.1, 0.1, 0.1));
+    ground->setKs(glm::vec3(1, 1, 1));
+    ground->setKd(glm::vec3(0.7, 0.7, 0.7));
+    ground->setSh(100);
+    ground->setModel(glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -5.0f, 0.0f)),
+                                glm::vec3(100.0f, 0.1f, 100.0f)));
+    ground->setModelMatrixParamToShader(params->modelParameter);
+    ground->setModelViewNMatrixParamToShader(params->modelViewNParameter);
+    ground->setKaToShader(params->kaParameter);
+    ground->setKdToShader(params->kdParameter);
+    ground->setKsToShader(params->ksParameter);
+    ground->setShToShader(params->shParameter);
+
     for (int i = -range; i < range; i++) {
         for (int j = -range; j < range; j++) {
             int stacks = (maxS - minS) * (range + i) / (2 * range - 1) + minS;
             int slices = (maxS - minS) * (range + j) / (2 * range - 1) + minS;
-            double r = (range + i) / (2.0 * range - 1.0);
-            double g = (range + j) / (2.0 * range - 1.0);
-            double b = 1.0;
+            float r = (range + i) / (2.0f * range - 1.0f);
+            float g = (range + j) / (2.0f * range - 1.0f);
+            float b = 1.0f;
             auto& sphere = shapes.emplace_back(std::make_unique<Sphere>(stacks, slices, 1));
             sphere->setKa(glm::vec3(0.1, 0.1, 0.1));
             sphere->setKs(glm::vec3(0, 0, 1));

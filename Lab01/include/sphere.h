@@ -16,7 +16,6 @@ private:
     GLuint stacks, slices;
     GLfloat r;
     void generate(int stacks, int slices, GLfloat r);
-    void initArrays();
 };
 
 }  // namespace dng
