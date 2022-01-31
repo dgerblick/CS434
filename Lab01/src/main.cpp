@@ -16,7 +16,9 @@ int main(int argc, char** argv) {
     glutIdleFunc(dng::idle);
     glutMouseFunc(dng::mouse);
     glutReshapeFunc(dng::reshape);
+    glutIgnoreKeyRepeat(1);
     glutKeyboardFunc(dng::kbd);
+    glutKeyboardUpFunc(dng::kbdRelease);
     glutSpecialUpFunc(dng::specKbdRelease);
     glutSpecialFunc(dng::specKbdPress);
     dng::initializeProgram(&dng::shaderProgram);

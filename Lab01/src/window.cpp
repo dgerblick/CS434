@@ -21,7 +21,9 @@ bool needRedisplay = false;
 GLuint shaderProgram;
 GLfloat ftime = 0.f;
 glm::vec3 cameraPos(0.0f, 1.0f, 0.0f);
-glm::vec2 cameraRot(0.0f, 0.0f);
+glm::vec2 cameraRot(0.0f);
+glm::vec3 cameraPosIn(0.0f);
+glm::vec2 cameraRotIn(0.0f);
 glm::mat4 proj;
 shaders::Params params;
 Light light;
@@ -29,6 +31,7 @@ std::vector<std::unique_ptr<Shapes>> shapes;
 GLint wWindow = 800;
 GLint hWindow = 800;
 float sh = 1;
+int lastTime = 0;
 
 // called when a window is reshaped
 void reshape(int w, int h) {
@@ -67,6 +70,31 @@ void idle() {
     glClearColor(0.1, 0.1, 0.1, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     ftime += 0.05;
+
+    // Update time var
+    int elapsed = glutGet(GLUT_ELAPSED_TIME);
+    float delta = (elapsed - lastTime) / 1000.0f;
+    lastTime = elapsed;
+
+    // Rotate Camera
+    cameraRot += delta * LOOK_KEY_RATE * cameraRotIn;
+    if (cameraRot.y > 2 * M_PI)
+        cameraRot.y -= 2 * M_PI;
+    if (cameraRot.y < 0)
+        cameraRot.y += 2 * M_PI;
+    if (cameraRot.x < LOOK_LIMIT - M_PI_2)
+        cameraRot.x = LOOK_LIMIT - M_PI_2;
+    if (cameraRot.x > LOOK_LIMIT + M_PI_2)
+        cameraRot.x = LOOK_LIMIT + M_PI_2;
+
+    // Move Camera
+    if (cameraPosIn.x != 0 || cameraPosIn.y != 0) {
+        glm::vec3 right = glm::normalize(glm::cross(lookVec(), UP));
+        glm::vec3 forward = glm::cross(right, UP);
+        glm::vec3 direction = glm::normalize(cameraPosIn);
+        cameraPos += delta * MOVE_KEY_RATE * (direction.x * forward + direction.y * right);
+    }
+
     glUseProgram(shaderProgram);
     renderObjects();
     glutSwapBuffers();
@@ -82,16 +110,16 @@ void kbd(unsigned char a, int x, int y) {
         exit(0);
         break;
     case 'w':
-        cameraPos += MOVE_KEY_STEP * glm::cross(glm::cross(UP, lookVec()), UP);
+        cameraPosIn.x -= 1.0f;
         break;
     case 'a':
-        cameraPos -= MOVE_KEY_STEP * glm::cross(lookVec(), UP);
+        cameraPosIn.y -= 1.0f;
         break;
     case 's':
-        cameraPos -= MOVE_KEY_STEP * glm::cross(glm::cross(UP, lookVec()), UP);
+        cameraPosIn.x += 1.0f;
         break;
     case 'd':
-        cameraPos += MOVE_KEY_STEP * glm::cross(lookVec(), UP);
+        cameraPosIn.y += 1.0f;
         break;
     case '.':
         std::cout << "cameraPos:\n"
@@ -124,28 +152,39 @@ void kbd(unsigned char a, int x, int y) {
     glutPostRedisplay();
 }
 
+// keyboard up callback
+void kbdRelease(unsigned char a, int x, int y) {
+    switch (a) {
+    case 'w':
+        cameraPosIn.x += 1.0f;
+        break;
+    case 'a':
+        cameraPosIn.y += 1.0f;
+        break;
+    case 's':
+        cameraPosIn.x -= 1.0f;
+        break;
+    case 'd':
+        cameraPosIn.y -= 1.0f;
+        break;
+    }
+    glutPostRedisplay();
+}
+
 // special keyboard callback
 void specKbdPress(int a, int x, int y) {
     switch (a) {
     case GLUT_KEY_LEFT:
-        cameraRot.y += LOOK_KEY_STEP;
-        if (cameraRot.y > 2 * M_PI)
-            cameraRot.y -= 2 * M_PI;
+        cameraRotIn.y += 1.0f;
         break;
     case GLUT_KEY_RIGHT:
-        cameraRot.y -= LOOK_KEY_STEP;
-        if (cameraRot.y < 0)
-            cameraRot.y += 2 * M_PI;
+        cameraRotIn.y -= 1.0f;
         break;
     case GLUT_KEY_DOWN:
-        cameraRot.x -= LOOK_KEY_STEP;
-        if (cameraRot.x < -M_PI_2)
-            cameraRot.x = -M_PI_2;
+        cameraRotIn.x -= 1.0f;
         break;
     case GLUT_KEY_UP:
-        cameraRot.x += LOOK_KEY_STEP;
-        if (cameraRot.x > M_PI_2)
-            cameraRot.x = M_PI_2;
+        cameraRotIn.x += 1.0f;
         break;
     }
     glutPostRedisplay();
@@ -155,12 +194,16 @@ void specKbdPress(int a, int x, int y) {
 void specKbdRelease(int a, int x, int y) {
     switch (a) {
     case GLUT_KEY_LEFT:
+        cameraRotIn.y -= 1.0f;
         break;
     case GLUT_KEY_RIGHT:
+        cameraRotIn.y += 1.0f;
         break;
     case GLUT_KEY_DOWN:
+        cameraRotIn.x += 1.0f;
         break;
     case GLUT_KEY_UP:
+        cameraRotIn.x -= 1.0f;
         break;
     }
     glutPostRedisplay();
