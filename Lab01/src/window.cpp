@@ -3,7 +3,7 @@
 #include <lights.h>
 #include <shape_instance.h>
 #include <cube.h>
-#include <obj_model.h>
+#include <windmill.h>
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -269,7 +269,7 @@ void initShapes(shaders::Params* params) {
     ground->setKsToShader(params->ksParameter);
     ground->setShToShader(params->shParameter);
 
-    ShapeInstance<ObjModel> windmill("models/windmillbase.obj");
+    ShapeInstance<Windmill> windmill;
 
     for (int i = -range; i < range; i++) {
         for (int j = -range; j < range; j++) {

@@ -18,6 +18,7 @@
     <ClCompile Include="src\shaders.cpp" />
     <ClCompile Include="src\shapes.cpp" />
     <ClCompile Include="src\sphere.cpp" />
+    <ClCompile Include="src\windmill.cpp" />
     <ClCompile Include="src\window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -28,6 +29,7 @@
     <ClInclude Include="include\shaders.h" />
     <ClInclude Include="include\shape_instance.h" />
     <ClInclude Include="include\shapes.h" />
+    <ClInclude Include="include\windmill.h" />
     <ClInclude Include="include\window.h" />
   </ItemGroup>
   <ItemGroup>

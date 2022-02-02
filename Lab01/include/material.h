@@ -8,10 +8,10 @@ namespace dng {
 
 class Material {
 public:
-    void setKa(glm::vec3 amb) { ka = amb; }
-    void setKd(glm::vec3 diff) { kd = diff; }
-    void setKs(glm::vec3 spec) { ks = spec; }
-    void setSh(float sh) { this->sh = sh; }
+    virtual void setKa(glm::vec3 amb) { ka = amb; }
+    virtual void setKd(glm::vec3 diff) { kd = diff; }
+    virtual void setKs(glm::vec3 spec) { ks = spec; }
+    virtual void setSh(float sh) { this->sh = sh; }
     virtual void setKaToShader(GLuint uniform) { kaParameter = uniform; }
     virtual void setKdToShader(GLuint uniform) { kdParameter = uniform; };
     virtual void setKsToShader(GLuint uniform) { ksParameter = uniform; };
