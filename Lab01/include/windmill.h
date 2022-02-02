@@ -12,6 +12,7 @@ class Windmill : public Shapes {
 public:
     Windmill(int numBlades = 4);
     virtual void render();
+    virtual void update(float deltaT);
     virtual void setKa(glm::vec3 amb);
     virtual void setKd(glm::vec3 diff);
     virtual void setKs(glm::vec3 spec);
@@ -31,9 +32,12 @@ private:
     ObjModel axle;
     ObjModel blade;
     double angle;
+    double speed;
     glm::mat4 baseOffset;
     glm::mat4 axleOffset;
-    std::vector<glm::mat4> bladesOffset;
+    int numBlades;
+    std::vector<double> bladesOffset;
+    std::vector<bool> bladesVisible;
 };
 
 }  // namespace dng

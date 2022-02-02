@@ -5,27 +5,38 @@
 namespace dng {
 
 Windmill::Windmill(int numBlades)
-    : base("models/windmillbase.obj"), axle("models/axle.obj"), blade("models/blade.obj") {
+    : base("models/windmillbase.obj"),
+      axle("models/axle.obj"),
+      blade("models/blade.obj"),
+      bladesVisible(numBlades, true),
+      numBlades(numBlades) {
     angle = 0.0;
+    speed = 1.0;
     baseOffset = glm::mat4(1.0);
     axleOffset = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 1.65, 0.0));
-
     float angleOffset = 360.0f / numBlades;
     bladesOffset.reserve(numBlades);
-    for (int i = 0; i < numBlades; i++) {
-        bladesOffset.push_back(glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(0.5, 0.0, 0.0)),
-                                           i * angleOffset, glm::vec3(1.0, 0.0, 0.0)));
-        std::cout << i * angleOffset << '\n';
-    }
+    for (int i = 0; i < numBlades; i++)
+        bladesOffset.push_back(i * angleOffset);
 }
 
 void Windmill::render() {
     base.render();
     axle.render();
-    for (auto& offset : bladesOffset) {
-        blade.setModel(model * axleOffset * offset);
-        blade.render();
+    for (int i = 0; i < numBlades; i++) {
+        if (bladesVisible[i]) {
+            glm::mat4 offset =
+                glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(0.5, 0.0, 0.0)),
+                            (float) (angle + bladesOffset[i]), glm::vec3(1.0, 0.0, 0.0));
+            blade.setModel(model * axleOffset * offset);
+            blade.render();
+        }
     }
+}
+
+void Windmill::update(float deltaT) {
+    angle += speed * deltaT;
+    std::cout << angle << '\n';
 }
 
 void Windmill::setKa(glm::vec3 amb) {

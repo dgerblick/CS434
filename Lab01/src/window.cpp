@@ -44,7 +44,7 @@ void reshape(int w, int h) {
 }
 
 // the main rendering function
-void renderObjects() {
+void renderObjects(float deltaT) {
     const int range = 3;
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glColor3f(0, 0, 0);
@@ -63,6 +63,8 @@ void renderObjects() {
     light.setPos(pos);
     light.setShaders();
     for (auto& shape : shapes)
+        shape->update(deltaT);
+    for (auto& shape : shapes)
         shape->render();
 }
 
@@ -73,11 +75,11 @@ void idle() {
 
     // Update time var
     int elapsed = glutGet(GLUT_ELAPSED_TIME);
-    float delta = (elapsed - lastTime) / 1000.0f;
+    float deltaT = (elapsed - lastTime) / 1000.0f;
     lastTime = elapsed;
 
     // Rotate Camera
-    cameraRot += delta * LOOK_KEY_RATE * cameraRotIn;
+    cameraRot += deltaT * LOOK_KEY_RATE * cameraRotIn;
     if (cameraRot.y > 2 * M_PI)
         cameraRot.y -= 2 * M_PI;
     if (cameraRot.y < 0)
@@ -92,11 +94,11 @@ void idle() {
         glm::vec3 right = glm::normalize(glm::cross(lookVec(), UP));
         glm::vec3 forward = glm::cross(right, UP);
         glm::vec3 direction = glm::normalize(cameraPosIn);
-        cameraPos += delta * MOVE_KEY_RATE * (direction.x * forward + direction.y * right);
+        cameraPos += deltaT * MOVE_KEY_RATE * (direction.x * forward + direction.y * right);
     }
 
     glUseProgram(shaderProgram);
-    renderObjects();
+    renderObjects(deltaT);
     glutSwapBuffers();
 }
 

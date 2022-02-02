@@ -18,6 +18,7 @@ public:
     virtual void setModelViewN(glm::mat3 tmp);  // 3x3 matrix!
     virtual void setColor(GLubyte r, GLubyte b, GLubyte g);
     virtual void render();
+    virtual void update(float deltaT);
     void initArrays();
     static void addVertex(std::vector<GLfloat>& a, const glm::vec3& v);
 

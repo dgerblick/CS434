@@ -24,6 +24,9 @@ void Shapes::render() {
     std::cout << "Base class cannot render\n";
 }
 
+void Shapes::update(float deltaT) {
+}
+
 void Shapes::setModel(glm::mat4 tmp) {
     model = tmp;
 }

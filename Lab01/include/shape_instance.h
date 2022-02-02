@@ -40,6 +40,10 @@ public:
         shape->render();
     }
 
+    virtual void update(float deltaT) {
+        shape->update(deltaT);
+    }
+
 private:
     std::shared_ptr<T> shape;
 };

@@ -19,7 +19,6 @@ extern GLint wWindow;
 extern GLint hWindow;
 
 void reshape(int w, int h);
-void renderObjects();
 void idle();
 void display();
 void kbd(unsigned char a, int x, int y);
