@@ -26,6 +26,7 @@
     <ClInclude Include="include\material.h" />
     <ClInclude Include="include\obj_model.h" />
     <ClInclude Include="include\shaders.h" />
+    <ClInclude Include="include\shape_instance.h" />
     <ClInclude Include="include\shapes.h" />
     <ClInclude Include="include\window.h" />
   </ItemGroup>

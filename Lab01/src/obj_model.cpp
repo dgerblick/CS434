@@ -29,7 +29,7 @@ void ObjModel::render() {
     glUniformMatrix4fv(modelParameter, 1, GL_FALSE, glm::value_ptr(model));
     // model for normals
     glUniformMatrix3fv(modelViewNParameter, 1, GL_FALSE, glm::value_ptr(modelViewN));
-    //glDrawArrays(GL_TRIANGLES, 0, 3 * points);
+    // glDrawArrays(GL_TRIANGLES, 0, 3 * points);
     glDrawElements(GL_TRIANGLES, 3 * points, GL_UNSIGNED_INT, nullptr);
 }
 
@@ -114,36 +114,20 @@ void ObjModel::processFace(std::vector<std::pair<GLint, GLint>>& faceVerts,
         }
         return;
     }
-    glm::vec3& v0 = verts[faceVerts[0].first - 1];
-    glm::vec3& v1 = verts[faceVerts[1].first - 1];
-    glm::vec3& v2 = verts[faceVerts[2].first - 1];
-    glm::vec3& n0 = norms[faceVerts[0].second - 1];
-    glm::vec3& n1 = norms[faceVerts[1].second - 1];
-    glm::vec3& n2 = norms[faceVerts[2].second - 1];
-    if (n0 == glm::vec3(0.0) || n1 == glm::vec3(0.0) || n2 == glm::vec3(0.0)) {
-        glm::vec3 norm = glm::cross(v0 - v1, v0 - v2);
+    if (faceVerts[0].second == -1 || faceVerts[1].second == -1 || faceVerts[2].second == -1) {
+        glm::vec3 norm = glm::cross(verts[faceVerts[0].first - 1] - verts[faceVerts[1].first - 1],
+                                    verts[faceVerts[0].first - 1] - verts[faceVerts[2].first - 1]);
         norms.push_back(norm);
-        if (n0 == glm::vec3(0.0)) {
-            n0 = norm;
-            faceVerts[0].second = norms.size() - 1;
-        }
-        if (n1 == glm::vec3(0.0)) {
-            n1 = norm;
-            faceVerts[1].second = norms.size() - 1;
-        }
-        if (n2 == glm::vec3(0.0)) {
-            n2 = norm;
-            faceVerts[2].second = norms.size() - 1;
-        }
+        for (int i = 0; i < 3; i++)
+            if (faceVerts[i].second == -1)
+                faceVerts[i].second = norms.size() - 1;
     }
     for (int i = 0; i < 3; i++) {
         if (vertNormIdx.count(faceVerts[i]) == 0) {
             vertNormIdx[faceVerts[i]] = indexCount;
             indexCount++;
-            for (int j = 0; j < 3; j++) {
-                vertex.push_back(verts[faceVerts[i].first - 1][j]);
-                normal.push_back(norms[faceVerts[i].second - 1][j]);
-            }
+            addVertex(vertex, verts[faceVerts[i].first - 1]);
+            addVertex(normal, norms[faceVerts[i].second - 1]);
         }
         index.push_back(vertNormIdx[faceVerts[i]]);
     }

@@ -1,8 +1,7 @@
 #include <window.h>
 #include <shaders.h>
 #include <lights.h>
-#include <shapes.h>
-#include <sphere.h>
+#include <shape_instance.h>
 #include <cube.h>
 #include <obj_model.h>
 #include <algorithm>
@@ -255,18 +254,6 @@ void initShapes(shaders::Params* params) {
 
     shapes.clear();
     shapes.reserve(4 * range * range + 2);
-    auto& bullet = shapes.emplace_back(std::make_unique<ObjModel>("models/windmillbase.obj"));
-    bullet->setKa(glm::vec3(0.1, 0.1, 0.1));
-    bullet->setKs(glm::vec3(1, 1, 1));
-    bullet->setKd(glm::vec3(0.7, 0.7, 0.7));
-    bullet->setSh(100);
-    bullet->setModel(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -10.0f)));
-    bullet->setModelMatrixParamToShader(params->modelParameter);
-    bullet->setModelViewNMatrixParamToShader(params->modelViewNParameter);
-    bullet->setKaToShader(params->kaParameter);
-    bullet->setKdToShader(params->kdParameter);
-    bullet->setKsToShader(params->ksParameter);
-    bullet->setShToShader(params->shParameter);
 
     auto& ground = shapes.emplace_back(std::make_unique<Cube>());
     ground->setKa(glm::vec3(0.1, 0.1, 0.1));
@@ -282,6 +269,8 @@ void initShapes(shaders::Params* params) {
     ground->setKsToShader(params->ksParameter);
     ground->setShToShader(params->shParameter);
 
+    ShapeInstance<ObjModel> windmill("models/windmillbase.obj");
+
     for (int i = -range; i < range; i++) {
         for (int j = -range; j < range; j++) {
             int stacks = (maxS - minS) * (range + i) / (2 * range - 1) + minS;
@@ -289,18 +278,19 @@ void initShapes(shaders::Params* params) {
             float r = (range + i) / (2.0f * range - 1.0f);
             float g = (range + j) / (2.0f * range - 1.0f);
             float b = 1.0f;
-            auto& sphere = shapes.emplace_back(std::make_unique<Sphere>(stacks, slices, 1));
-            sphere->setKa(glm::vec3(0.1, 0.1, 0.1));
-            sphere->setKs(glm::vec3(0, 0, 1));
-            sphere->setKd(glm::vec3(r, g, b));
-            sphere->setSh(sh);
-            sphere->setModel(glm::translate(glm::mat4(1.0), glm::vec3(4 * i, 10, 4 * j)));
-            sphere->setModelMatrixParamToShader(params->modelParameter);
-            sphere->setModelViewNMatrixParamToShader(params->modelViewNParameter);
-            sphere->setKaToShader(params->kaParameter);
-            sphere->setKdToShader(params->kdParameter);
-            sphere->setKsToShader(params->ksParameter);
-            sphere->setShToShader(params->shParameter);
+            auto& windmillInstance = shapes.emplace_back(windmill.cloneToUnique());
+            windmillInstance->setKa(glm::vec3(0.1, 0.1, 0.1));
+            windmillInstance->setKs(glm::vec3(0, 0, 1));
+            windmillInstance->setKd(glm::vec3(r, g, b));
+            windmillInstance->setSh(sh);
+            windmillInstance->setModel(
+                glm::translate(glm::mat4(1.0), glm::vec3(4 * i + 2, 0, 4 * j + 2)));
+            windmillInstance->setModelMatrixParamToShader(params->modelParameter);
+            windmillInstance->setModelViewNMatrixParamToShader(params->modelViewNParameter);
+            windmillInstance->setKaToShader(params->kaParameter);
+            windmillInstance->setKdToShader(params->kdParameter);
+            windmillInstance->setKsToShader(params->ksParameter);
+            windmillInstance->setShToShader(params->shParameter);
         }
     }
 }
