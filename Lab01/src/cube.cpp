@@ -77,7 +77,7 @@ void Cube::generate() {
 
 void Cube::render() {
     glBindVertexArray(vaID);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    //glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glEnableVertexAttribArray(0);
     glUniformMatrix4fv(modelParameter, 1, GL_FALSE, glm::value_ptr(model));
     glDrawArrays(GL_TRIANGLES, 0, 3 * points);

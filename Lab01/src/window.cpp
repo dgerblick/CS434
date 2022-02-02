@@ -4,6 +4,7 @@
 #include <shapes.h>
 #include <sphere.h>
 #include <cube.h>
+#include <obj_model.h>
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -253,15 +254,27 @@ void initShapes(shaders::Params* params) {
     const int minS = 50;
 
     shapes.clear();
-    shapes.reserve(4 * range * range + 1);
+    shapes.reserve(4 * range * range + 2);
+    auto& bullet = shapes.emplace_back(std::make_unique<ObjModel>("models/windmillbase.obj"));
+    bullet->setKa(glm::vec3(0.1, 0.1, 0.1));
+    bullet->setKs(glm::vec3(1, 1, 1));
+    bullet->setKd(glm::vec3(0.7, 0.7, 0.7));
+    bullet->setSh(100);
+    bullet->setModel(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -10.0f)));
+    bullet->setModelMatrixParamToShader(params->modelParameter);
+    bullet->setModelViewNMatrixParamToShader(params->modelViewNParameter);
+    bullet->setKaToShader(params->kaParameter);
+    bullet->setKdToShader(params->kdParameter);
+    bullet->setKsToShader(params->ksParameter);
+    bullet->setShToShader(params->shParameter);
 
     auto& ground = shapes.emplace_back(std::make_unique<Cube>());
     ground->setKa(glm::vec3(0.1, 0.1, 0.1));
     ground->setKs(glm::vec3(1, 1, 1));
     ground->setKd(glm::vec3(0.7, 0.7, 0.7));
     ground->setSh(100);
-    ground->setModel(glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -5.0f, 0.0f)),
-                                glm::vec3(100.0f, 0.1f, 100.0f)));
+    ground->setModel(glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -2.0f, 0.0f)),
+                                glm::vec3(100.0f, 1.0f, 100.0f)));
     ground->setModelMatrixParamToShader(params->modelParameter);
     ground->setModelViewNMatrixParamToShader(params->modelViewNParameter);
     ground->setKaToShader(params->kaParameter);
@@ -281,7 +294,7 @@ void initShapes(shaders::Params* params) {
             sphere->setKs(glm::vec3(0, 0, 1));
             sphere->setKd(glm::vec3(r, g, b));
             sphere->setSh(sh);
-            sphere->setModel(glm::translate(glm::mat4(1.0), glm::vec3(4 * i, 0, 4 * j)));
+            sphere->setModel(glm::translate(glm::mat4(1.0), glm::vec3(4 * i, 10, 4 * j)));
             sphere->setModelMatrixParamToShader(params->modelParameter);
             sphere->setModelViewNMatrixParamToShader(params->modelViewNParameter);
             sphere->setKaToShader(params->kaParameter);

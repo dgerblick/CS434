@@ -14,6 +14,7 @@
     <ClCompile Include="src\cube.cpp" />
     <ClCompile Include="src\lights.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\obj_model.cpp" />
     <ClCompile Include="src\shaders.cpp" />
     <ClCompile Include="src\shapes.cpp" />
     <ClCompile Include="src\sphere.cpp" />
@@ -23,6 +24,7 @@
     <ClInclude Include="include\cube.h" />
     <ClInclude Include="include\lights.h" />
     <ClInclude Include="include\material.h" />
+    <ClInclude Include="include\obj_model.h" />
     <ClInclude Include="include\shaders.h" />
     <ClInclude Include="include\shapes.h" />
     <ClInclude Include="include\window.h" />
