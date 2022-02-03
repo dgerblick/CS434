@@ -3,34 +3,21 @@
 
 #include <shapes.h>
 #include <obj_model.h>
+#include <shape_instance.h>
 #include <vector>
+#include <optional>
 
 namespace dng {
 
 // derived class from Shapes
 class Windmill : public Shapes {
 public:
-    Windmill(float angle = 0.0f, float speed = 1.0f, int numBlades = 4);
+    Windmill(float angle = 0.0f, float speed = 90.0f, int numBlades = 4);
     virtual void render();
     virtual void update(float deltaT);
-    virtual void setKa(glm::vec3 amb);
-    virtual void setKd(glm::vec3 diff);
-    virtual void setKs(glm::vec3 spec);
-    virtual void setSh(float sh);
-    virtual void setKaToShader(GLuint uniform);
-    virtual void setKdToShader(GLuint uniform);
-    virtual void setKsToShader(GLuint uniform);
-    virtual void setShToShader(GLuint uniform);
-    virtual void setModelMatrixParamToShader(GLuint uniform);
-    virtual void setModelViewNMatrixParamToShader(GLuint uniform);
-    virtual void setModel(glm::mat4 tmp);
-    virtual void setModelViewN(glm::mat3 tmp);
-    virtual void setColor(GLubyte r, GLubyte b, GLubyte g);
+    static void init();
 
 private:
-    ObjModel base;
-    ObjModel axle;
-    ObjModel blade;
     float angle;
     float speed;
     glm::mat4 baseOffset;
@@ -38,6 +25,9 @@ private:
     int numBlades;
     std::vector<glm::mat4> bladesOffset;
     std::vector<bool> bladesVisible;
+    static std::optional<ObjModel> base;
+    static std::optional<ObjModel> axle;
+    static std::optional<ObjModel> blade;
 };
 
 }  // namespace dng

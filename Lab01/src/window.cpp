@@ -237,17 +237,19 @@ void initializeProgram(GLuint* program) {
 }
 
 void initShapes(shaders::Params* params) {
-    const int numWindmills = 100;
+    const int numWindmills = 250;
+    ::srand(::time(nullptr));
 
-    // shapes.clear();
     Shapes::list.clear();
+    Windmill::init();
 
     auto& ground = Shapes::listAdd<Cube>();
     ground.setKa(glm::vec3(0.1, 0.1, 0.1));
     ground.setKs(glm::vec3(1, 1, 1));
     ground.setKd(glm::vec3(0.7, 0.7, 0.7));
     ground.setSh(100);
-    ground.setModel(glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(100.0f, 1.0f, 100.0f)), glm::vec3(0.0f, -1.0f, 0.0f)));
+    ground.setModel(glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(150.0f, 1.0f, 150.0f)),
+                                   glm::vec3(0.0f, -1.0f, 0.0f)));
     ground.setModelMatrixParamToShader(params->modelParameter);
     ground.setModelViewNMatrixParamToShader(params->modelViewNParameter);
     ground.setKaToShader(params->kaParameter);
@@ -255,24 +257,25 @@ void initShapes(shaders::Params* params) {
     ground.setKsToShader(params->ksParameter);
     ground.setShToShader(params->shParameter);
 
-    ShapeInstance<Windmill> windmill;
-
+    std::vector<int> numBlades({ 3, 3, 4, 4, 4, 4, 4, 6, 6, 8, 12 });
     for (int i = 0; i < numWindmills; i++) {
-        auto& windmillInstance = Shapes::listAdd<ShapeInstance<Windmill>>(windmill);
-        windmillInstance.setKa(glm::vec3(0.1, 0.1, 0.1));
-        windmillInstance.setKs(glm::vec3(rand(), rand(), rand()));
-        windmillInstance.setKd(glm::vec3(rand(), rand(), rand()));
-        windmillInstance.setSh(rand(0.0f, 100.0f));
-        windmillInstance.setModel(
-            glm::scale(glm::translate(glm::mat4(1.0),
+        auto& windmill = Shapes::listAdd<Windmill>(rand(0.0f, 360.0f), rand(60.0f, 360.0f),
+                                                   numBlades[i % numBlades.size()]);
+        windmill.setKa(glm::vec3(0.1, 0.1, 0.1));
+        windmill.setKs(glm::vec3(rand(), rand(), rand()));
+        windmill.setKd(glm::vec3(rand(), rand(), rand()));
+        windmill.setSh(rand(0.0f, 100.0f));
+        windmill.setModel(
+            glm::scale(glm::translate(glm::rotate(glm::mat4(1.0), rand(0.0f, 360.0f),
+                                                  glm::vec3(0.0f, 1.0f, 0.0f)),
                                       glm::vec3(rand(-50.0f, 50.0f), -0.25f, rand(-50.0f, 50.0f))),
                        glm::vec3(0.75f)));
-        windmillInstance.setModelMatrixParamToShader(params->modelParameter);
-        windmillInstance.setModelViewNMatrixParamToShader(params->modelViewNParameter);
-        windmillInstance.setKaToShader(params->kaParameter);
-        windmillInstance.setKdToShader(params->kdParameter);
-        windmillInstance.setKsToShader(params->ksParameter);
-        windmillInstance.setShToShader(params->shParameter);
+        windmill.setModelMatrixParamToShader(params->modelParameter);
+        windmill.setModelViewNMatrixParamToShader(params->modelViewNParameter);
+        windmill.setKaToShader(params->kaParameter);
+        windmill.setKdToShader(params->kdParameter);
+        windmill.setKsToShader(params->ksParameter);
+        windmill.setShToShader(params->shParameter);
     }
 }
 
