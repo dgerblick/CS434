@@ -12,8 +12,6 @@
 
 namespace dng {
 
-// help procedure that send values from glm::vec3 to a STL vector of float
-// used for creating VBOs
 void Shapes::addVertex(std::vector<GLfloat>& a, const glm::vec3& v) {
     a.push_back(v.x);
     a.push_back(v.y);
@@ -76,5 +74,7 @@ void Shapes::initArrays() {
     glEnableVertexAttribArray(1);
     normal.clear();  // no need for the normal data, it is on the GPU now
 }
+
+Shapes::List Shapes::list;
 
 }  // namespace dng

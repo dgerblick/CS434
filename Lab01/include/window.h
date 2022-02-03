@@ -4,7 +4,7 @@
 #include <shaders.h>
 #include <lights.h>
 #include <shapes.h>
-#include <vector>
+#include <list>
 #include <memory>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
@@ -14,7 +14,7 @@ namespace dng {
 extern GLuint shaderProgram;
 extern shaders::Params params;
 extern Light light;
-extern std::vector<std::unique_ptr<Shapes>> shapes;
+extern std::list<std::unique_ptr<Shapes>> shapes;
 extern GLint wWindow;
 extern GLint hWindow;
 

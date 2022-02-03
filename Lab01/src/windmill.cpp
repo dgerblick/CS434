@@ -1,42 +1,43 @@
 #include <windmill.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include <random>
 
 namespace dng {
 
-Windmill::Windmill(int numBlades)
+Windmill::Windmill(float angle, float speed, int numBlades)
     : base("models/windmillbase.obj"),
       axle("models/axle.obj"),
       blade("models/blade.obj"),
       bladesVisible(numBlades, true),
+      angle(angle),
+      speed(speed),
       numBlades(numBlades) {
-    angle = 0.0;
-    speed = 1.0;
     baseOffset = glm::mat4(1.0);
     axleOffset = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 1.65, 0.0));
     float angleOffset = 360.0f / numBlades;
     bladesOffset.reserve(numBlades);
-    for (int i = 0; i < numBlades; i++)
-        bladesOffset.push_back(i * angleOffset);
+    for (int i = 0; i < numBlades; i++) {
+        bladesOffset.push_back(glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(0.5, 0.0, 0.0)),
+                                           angleOffset * i, glm::vec3(1.0, 0.0, 0.0)));
+    }
 }
 
 void Windmill::render() {
     base.render();
+    glm::mat4 spinOffset = model *glm::rotate(axleOffset, angle, glm::vec3(1.0, 0.0, 0.0));
+    axle.setModel(spinOffset);
     axle.render();
     for (int i = 0; i < numBlades; i++) {
         if (bladesVisible[i]) {
-            glm::mat4 offset =
-                glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(0.5, 0.0, 0.0)),
-                            (float) (angle + bladesOffset[i]), glm::vec3(1.0, 0.0, 0.0));
-            blade.setModel(model * axleOffset * offset);
+            blade.setModel(spinOffset * bladesOffset[i]);
             blade.render();
         }
     }
 }
 
 void Windmill::update(float deltaT) {
-    angle += speed * deltaT;
-    std::cout << angle << '\n';
+    angle -= speed * deltaT;
 }
 
 void Windmill::setKa(glm::vec3 amb) {
@@ -111,7 +112,6 @@ void Windmill::setModelViewNMatrixParamToShader(GLuint uniform) {
 
 void Windmill::setModel(glm::mat4 tmp) {
     base.setModel(tmp * baseOffset);
-    axle.setModel(tmp * axleOffset);
     model = tmp;
 }
 

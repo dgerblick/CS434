@@ -6,7 +6,6 @@
 #include <windmill.h>
 #include <algorithm>
 #include <iostream>
-#include <vector>
 #include <memory>
 #include <GL/glew.h>
 #include <GL/glut.h>
@@ -17,7 +16,6 @@
 namespace dng {
 
 bool needRedisplay = false;
-// Shapes* sphere;
 GLuint shaderProgram;
 GLfloat ftime = 0.f;
 glm::vec3 cameraPos(0.0f, 1.0f, 0.0f);
@@ -27,11 +25,14 @@ glm::vec2 cameraRotIn(0.0f);
 glm::mat4 proj;
 shaders::Params params;
 Light light;
-std::vector<std::unique_ptr<Shapes>> shapes;
 GLint wWindow = 800;
 GLint hWindow = 800;
 float sh = 1;
 int lastTime = 0;
+
+float rand(float min = 0.0f, float max = 1.0f) {
+    return min + static_cast<float>(::rand()) / (static_cast<float>(RAND_MAX / (max - min)));
+}
 
 // called when a window is reshaped
 void reshape(int w, int h) {
@@ -62,21 +63,21 @@ void renderObjects(float deltaT) {
     pos.w = 1;
     light.setPos(pos);
     light.setShaders();
-    for (auto& shape : shapes)
+    for (auto& shape : Shapes::list)
         shape->update(deltaT);
-    for (auto& shape : shapes)
+    for (auto& shape : Shapes::list)
         shape->render();
 }
 
 void idle() {
     glClearColor(0.1, 0.1, 0.1, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    ftime += 0.05;
 
     // Update time var
     int elapsed = glutGet(GLUT_ELAPSED_TIME);
     float deltaT = (elapsed - lastTime) / 1000.0f;
     lastTime = elapsed;
+    ftime += deltaT;
 
     // Rotate Camera
     cameraRot += deltaT * LOOK_KEY_RATE * cameraRotIn;
@@ -135,20 +136,6 @@ void kbd(unsigned char a, int x, int y) {
                   << "  x: " << lookVec().x << '\n'
                   << "  y: " << lookVec().y << '\n'
                   << "  z: " << lookVec().z << '\n';
-        break;
-    case '+':
-    case '=':
-        sh += 1;
-        for (auto& shape : shapes)
-            shape->setSh(sh);
-        break;
-    case '_':
-    case '-':
-        sh -= 1;
-        if (sh < 1)
-            sh = 1;
-        for (auto& shape : shapes)
-            shape->setSh(sh);
         break;
     }
     glutPostRedisplay();
@@ -250,50 +237,42 @@ void initializeProgram(GLuint* program) {
 }
 
 void initShapes(shaders::Params* params) {
-    const int range = 3;
-    const int maxS = 5;
-    const int minS = 50;
+    const int numWindmills = 100;
 
-    shapes.clear();
-    shapes.reserve(4 * range * range + 2);
+    // shapes.clear();
+    Shapes::list.clear();
 
-    auto& ground = shapes.emplace_back(std::make_unique<Cube>());
-    ground->setKa(glm::vec3(0.1, 0.1, 0.1));
-    ground->setKs(glm::vec3(1, 1, 1));
-    ground->setKd(glm::vec3(0.7, 0.7, 0.7));
-    ground->setSh(100);
-    ground->setModel(glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -2.0f, 0.0f)),
-                                glm::vec3(100.0f, 1.0f, 100.0f)));
-    ground->setModelMatrixParamToShader(params->modelParameter);
-    ground->setModelViewNMatrixParamToShader(params->modelViewNParameter);
-    ground->setKaToShader(params->kaParameter);
-    ground->setKdToShader(params->kdParameter);
-    ground->setKsToShader(params->ksParameter);
-    ground->setShToShader(params->shParameter);
+    auto& ground = Shapes::listAdd<Cube>();
+    ground.setKa(glm::vec3(0.1, 0.1, 0.1));
+    ground.setKs(glm::vec3(1, 1, 1));
+    ground.setKd(glm::vec3(0.7, 0.7, 0.7));
+    ground.setSh(100);
+    ground.setModel(glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(100.0f, 1.0f, 100.0f)), glm::vec3(0.0f, -1.0f, 0.0f)));
+    ground.setModelMatrixParamToShader(params->modelParameter);
+    ground.setModelViewNMatrixParamToShader(params->modelViewNParameter);
+    ground.setKaToShader(params->kaParameter);
+    ground.setKdToShader(params->kdParameter);
+    ground.setKsToShader(params->ksParameter);
+    ground.setShToShader(params->shParameter);
 
     ShapeInstance<Windmill> windmill;
 
-    for (int i = -range; i < range; i++) {
-        for (int j = -range; j < range; j++) {
-            int stacks = (maxS - minS) * (range + i) / (2 * range - 1) + minS;
-            int slices = (maxS - minS) * (range + j) / (2 * range - 1) + minS;
-            float r = (range + i) / (2.0f * range - 1.0f);
-            float g = (range + j) / (2.0f * range - 1.0f);
-            float b = 1.0f;
-            auto& windmillInstance = shapes.emplace_back(windmill.cloneToUnique());
-            windmillInstance->setKa(glm::vec3(0.1, 0.1, 0.1));
-            windmillInstance->setKs(glm::vec3(0, 0, 1));
-            windmillInstance->setKd(glm::vec3(r, g, b));
-            windmillInstance->setSh(sh);
-            windmillInstance->setModel(
-                glm::translate(glm::mat4(1.0), glm::vec3(4 * i + 2, 0, 4 * j + 2)));
-            windmillInstance->setModelMatrixParamToShader(params->modelParameter);
-            windmillInstance->setModelViewNMatrixParamToShader(params->modelViewNParameter);
-            windmillInstance->setKaToShader(params->kaParameter);
-            windmillInstance->setKdToShader(params->kdParameter);
-            windmillInstance->setKsToShader(params->ksParameter);
-            windmillInstance->setShToShader(params->shParameter);
-        }
+    for (int i = 0; i < numWindmills; i++) {
+        auto& windmillInstance = Shapes::listAdd<ShapeInstance<Windmill>>(windmill);
+        windmillInstance.setKa(glm::vec3(0.1, 0.1, 0.1));
+        windmillInstance.setKs(glm::vec3(rand(), rand(), rand()));
+        windmillInstance.setKd(glm::vec3(rand(), rand(), rand()));
+        windmillInstance.setSh(rand(0.0f, 100.0f));
+        windmillInstance.setModel(
+            glm::scale(glm::translate(glm::mat4(1.0),
+                                      glm::vec3(rand(-50.0f, 50.0f), -0.25f, rand(-50.0f, 50.0f))),
+                       glm::vec3(0.75f)));
+        windmillInstance.setModelMatrixParamToShader(params->modelParameter);
+        windmillInstance.setModelViewNMatrixParamToShader(params->modelViewNParameter);
+        windmillInstance.setKaToShader(params->kaParameter);
+        windmillInstance.setKdToShader(params->kdParameter);
+        windmillInstance.setKsToShader(params->ksParameter);
+        windmillInstance.setShToShader(params->shParameter);
     }
 }
 

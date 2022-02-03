@@ -10,7 +10,7 @@ namespace dng {
 // derived class from Shapes
 class Windmill : public Shapes {
 public:
-    Windmill(int numBlades = 4);
+    Windmill(float angle = 0.0f, float speed = 1.0f, int numBlades = 4);
     virtual void render();
     virtual void update(float deltaT);
     virtual void setKa(glm::vec3 amb);
@@ -31,12 +31,12 @@ private:
     ObjModel base;
     ObjModel axle;
     ObjModel blade;
-    double angle;
-    double speed;
+    float angle;
+    float speed;
     glm::mat4 baseOffset;
     glm::mat4 axleOffset;
     int numBlades;
-    std::vector<double> bladesOffset;
+    std::vector<glm::mat4> bladesOffset;
     std::vector<bool> bladesVisible;
 };
 

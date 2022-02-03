@@ -1,15 +1,16 @@
 #ifndef __SHAPES_H__
 #define __SHAPES_H__
 
+#include <material.h>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
-#include <material.h>
+#include <list>
+#include <memory>
 
 namespace dng {
 
-// Base class for shapes
 class Shapes : public Material {
 public:
     virtual void setModelMatrixParamToShader(GLuint uniform);
@@ -22,6 +23,17 @@ public:
     void initArrays();
     static void addVertex(std::vector<GLfloat>& a, const glm::vec3& v);
 
+    using List = std::list<std::unique_ptr<Shapes>>;
+    List::iterator it;
+    static List list;
+    template <typename T, typename... Args,
+              typename = std::enable_if_t<std::is_base_of_v<Shapes, T>>>
+    static T& listAdd(Args&&... args) {
+        std::unique_ptr<Shapes>& ptr = list.emplace_front(std::make_unique<T>(args...));
+        ptr->it = list.begin();
+        T* t = dynamic_cast<T*>(ptr.get());
+        return *t;
+    }
 protected:
     GLuint modelParameter;  // shader uniform variables
     GLuint modelViewNParameter;

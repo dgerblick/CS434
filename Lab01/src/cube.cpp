@@ -77,9 +77,17 @@ void Cube::generate() {
 
 void Cube::render() {
     glBindVertexArray(vaID);
-    //glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glEnableVertexAttribArray(0);
+    //	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    //	glEnableVertexAttribArray(0);
+    // material properties
+    glUniform3fv(kaParameter, 1, glm::value_ptr(ka));
+    glUniform3fv(kdParameter, 1, glm::value_ptr(kd));
+    glUniform3fv(ksParameter, 1, glm::value_ptr(ks));
+    glUniform1fv(shParameter, 1, &sh);
+    // model matrix
     glUniformMatrix4fv(modelParameter, 1, GL_FALSE, glm::value_ptr(model));
+    // model for normals
+    glUniformMatrix3fv(modelViewNParameter, 1, GL_FALSE, glm::value_ptr(modelViewN));
     glDrawArrays(GL_TRIANGLES, 0, 3 * points);
 }
 
