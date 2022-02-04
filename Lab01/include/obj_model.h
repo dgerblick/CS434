@@ -28,6 +28,7 @@ private:
     void processFace(std::vector<std::pair<GLint, GLint>>& faceVerts, std::vector<glm::vec3>& verts,
                      std::vector<glm::vec3>& norms);
     static std::vector<GLint> getFaceIndicies(const std::string& faceVertStr);
+    static std::map<std::string, std::pair<GLuint, GLuint>> loaded;
 };
 
 }  // namespace dng

@@ -1,7 +1,6 @@
 #include <window.h>
 #include <shaders.h>
 #include <lights.h>
-#include <shape_instance.h>
 #include <cube.h>
 #include <windmill.h>
 #include <algorithm>
@@ -241,7 +240,6 @@ void initShapes(shaders::Params* params) {
     ::srand(::time(nullptr));
 
     Shapes::list.clear();
-    Windmill::init();
 
     auto& ground = Shapes::listAdd<Cube>();
     ground.setKa(glm::vec3(0.1, 0.1, 0.1));

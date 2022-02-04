@@ -11,14 +11,21 @@
 namespace dng {
 
 ObjModel::ObjModel(const std::string& filename) : filename(filename) {
-    generate();
-    initArrays();
-    initIndexArray();
+    if (loaded.count(filename) > 0) {
+        vaID = loaded[filename].first;
+        points = loaded[filename].second;
+    } else {
+        generate();
+        initArrays();
+        initIndexArray();
+        loaded[filename].first = vaID;
+        loaded[filename].second = points;
+    }
 }
 
 void ObjModel::render() {
     glBindVertexArray(vaID);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    // glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glEnableVertexAttribArray(0);
     // material properties
     glUniform3fv(kaParameter, 1, glm::value_ptr(ka));
@@ -148,5 +155,7 @@ std::vector<GLint> ObjModel::getFaceIndicies(const std::string& faceVertStr) {
     }
     return faceIndicies;
 }
+
+std::map<std::string, std::pair<GLuint, GLuint>> ObjModel::loaded;
 
 }  // namespace dng

@@ -7,7 +7,7 @@ int main(int argc, char** argv) {
     glutInit(&argc, argv);
     glutInitWindowSize(dng::wWindow, dng::hWindow);
     glutInitWindowPosition(500, 100);
-    glutCreateWindow("Model View Projection GLSL");
+    glutCreateWindow("CS 434 - Project 1");
     GLenum err = glewInit();
     if (GLEW_OK != err) {
         fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
