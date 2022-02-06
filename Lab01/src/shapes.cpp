@@ -12,12 +12,6 @@
 
 namespace dng {
 
-void Shapes::addVertex(std::vector<GLfloat>& a, const glm::vec3& v) {
-    a.push_back(v.x);
-    a.push_back(v.y);
-    a.push_back(v.z);
-}
-
 void Shapes::render() {
     std::cout << "Base class cannot render\n";
 }
@@ -75,6 +69,34 @@ void Shapes::initArrays() {
     normal.clear();  // no need for the normal data, it is on the GPU now
 }
 
+void Shapes::addVertex(std::vector<GLfloat>& a, const glm::vec3& v) {
+    a.push_back(v.x);
+    a.push_back(v.y);
+    a.push_back(v.z);
+}
+
+void Shapes::deleteShape() {
+    deleteList.push_back(it);
+}
+
+void Shapes::listClear() {
+    list.clear();
+}
+
+void Shapes::step(float deltaT) {
+    for (auto& shape : list) {
+        shape->update(deltaT);
+    }
+    for (auto& shape : deleteList) {
+        list.erase(shape);
+    }
+    deleteList.clear();
+    for (auto& shape : list) {
+        shape->render();
+    }
+}
+
 Shapes::List Shapes::list;
+std::list<Shapes::List::iterator> Shapes::deleteList;
 
 }  // namespace dng

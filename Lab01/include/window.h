@@ -29,6 +29,7 @@ void mouse(int button, int state, int x, int y);
 void initializeProgram(GLuint* program);
 void initShapes(shaders::Params* params);
 glm::vec3 lookVec();
+void spawnBullet();
 
 const float LOOK_KEY_RATE = M_PI;
 const float MOVE_KEY_RATE = 10.0f;

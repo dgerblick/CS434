@@ -9,11 +9,13 @@
 
 namespace dng {
 
-class Bullets : public ObjModel {
+class Bullet : public ObjModel {
 public:
-    Bullets();
-    virtual void render(std::vector<std::unique_ptr<Shapes>>& shapes);
+    Bullet(glm::vec3 vec, float timeToLive = 10.0f);
     virtual void update(float deltaT);
+private:
+    glm::vec3 vec;
+    float timeToLive;
 };
 
 }  // namespace dng

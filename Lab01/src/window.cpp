@@ -3,6 +3,7 @@
 #include <lights.h>
 #include <cube.h>
 #include <windmill.h>
+#include <bullet.h>
 #include <algorithm>
 #include <iostream>
 #include <memory>
@@ -62,10 +63,7 @@ void renderObjects(float deltaT) {
     pos.w = 1;
     light.setPos(pos);
     light.setShaders();
-    for (auto& shape : Shapes::list)
-        shape->update(deltaT);
-    for (auto& shape : Shapes::list)
-        shape->render();
+    Shapes::step(deltaT);
 }
 
 void idle() {
@@ -122,6 +120,9 @@ void kbd(unsigned char a, int x, int y) {
         break;
     case 'd':
         cameraPosIn.y += 1.0f;
+        break;
+    case ' ':
+        spawnBullet();
         break;
     case '.':
         std::cout << "cameraPos:\n"
@@ -239,8 +240,9 @@ void initShapes(shaders::Params* params) {
     const int numWindmills = 250;
     ::srand(::time(nullptr));
 
-    Shapes::list.clear();
+    Shapes::listClear();
 
+    auto& bullet = Shapes::listAdd<Bullet>(glm::vec3(0.0), 0.0);
     auto& ground = Shapes::listAdd<Cube>();
     ground.setKa(glm::vec3(0.1, 0.1, 0.1));
     ground.setKs(glm::vec3(1, 1, 1));
@@ -280,6 +282,29 @@ void initShapes(shaders::Params* params) {
 glm::vec3 lookVec() {
     return glm::vec3(std::cos(cameraRot.x) * std::sin(cameraRot.y), std::sin(cameraRot.x),
                      std::cos(cameraRot.x) * std::cos(cameraRot.y));
+}
+
+void spawnBullet() {
+    glm::vec3 flatVec = lookVec();
+    flatVec.y = 0;
+    flatVec = glm::normalize(flatVec);
+
+    auto& bullet = Shapes::listAdd<Bullet>(glm::vec3(0.0, 0.0, -100.0), 2.0);
+    bullet.setKa(glm::vec3(0.2, 0.2, 0.2));
+    bullet.setKs(glm::vec3(1, 1, 1));
+    bullet.setKd(glm::vec3(0.7, 0.7, 0.7));
+    bullet.setSh(100);
+    bullet.setModel(glm::rotate(
+        glm::scale(
+            glm::translate(glm::translate(glm::mat4(1.0), glm::vec3(0.0, -0.5, 0.0)), cameraPos),
+            glm::vec3(0.2, 0.2, 0.2)),
+        glm::degrees(cameraRot.y) - 180.0f, glm::vec3(0.0f, 1.0f, 0.0f)));
+    bullet.setModelMatrixParamToShader(params.modelParameter);
+    bullet.setModelViewNMatrixParamToShader(params.modelViewNParameter);
+    bullet.setKaToShader(params.kaParameter);
+    bullet.setKdToShader(params.kdParameter);
+    bullet.setKsToShader(params.ksParameter);
+    bullet.setShToShader(params.shParameter);
 }
 
 }  // namespace dng
