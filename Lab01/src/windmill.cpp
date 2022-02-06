@@ -25,6 +25,7 @@ Windmill::Windmill(float angle, float speed, int numBlades)
         int j = ::rand() % (i + 1);
         std::swap(bladesOffset[i], bladesOffset[j]);
     }
+    shootDelay = 2 * M_PI / speed;
 }
 
 void Windmill::render() {
@@ -55,6 +56,23 @@ void Windmill::update(float deltaT) {
             if (numBlades <= 0)
                 deleteShape();
         }
+    }
+    shootDelay -= deltaT;
+    if (shootDelay <= 0) {
+        shootDelay += 2.0 * 360.0f / speed;
+        auto& bullet = Shapes::listAdd<Bullet>(glm::vec3(0.0, 0.0, -10.0), 10.0);
+        bullet.setKa(ka);
+        bullet.setKs(ks);
+        bullet.setKd(kd);
+        bullet.setSh(sh);
+        bullet.setModel(glm::translate(glm::rotate(model, -90.0f, glm::vec3(0.0, 1.0, 0.0)),
+                                       glm::vec3(0.0, 1.5, -1.5)));
+        bullet.setModelMatrixParamToShader(modelParameter);
+        bullet.setModelViewNMatrixParamToShader(modelViewNParameter);
+        bullet.setKaToShader(kaParameter);
+        bullet.setKdToShader(kdParameter);
+        bullet.setKsToShader(ksParameter);
+        bullet.setShToShader(shParameter);
     }
 }
 

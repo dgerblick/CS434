@@ -37,6 +37,7 @@ private:
     glm::mat4 axleOffset;
     int numBlades;
     std::vector<glm::mat4> bladesOffset;
+    float shootDelay;
 };
 
 }  // namespace dng
