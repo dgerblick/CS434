@@ -1,4 +1,5 @@
 #include <windmill.h>
+#include <bullet.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <random>
@@ -9,7 +10,6 @@ Windmill::Windmill(float angle, float speed, int numBlades)
     : base("models/windmillbase.obj"),
       axle("models/axle.obj"),
       blade("models/blade.obj"),
-      bladesVisible(numBlades, true),
       angle(angle),
       speed(speed),
       numBlades(numBlades) {
@@ -21,6 +21,10 @@ Windmill::Windmill(float angle, float speed, int numBlades)
         bladesOffset.push_back(glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(0.5, 0.0, 0.0)),
                                            angleOffset * i, glm::vec3(1.0, 0.0, 0.0)));
     }
+    for (int i = numBlades - 1; i >= 1; i--) {
+        int j = ::rand() % (i + 1);
+        std::swap(bladesOffset[i], bladesOffset[j]);
+    }
 }
 
 void Windmill::render() {
@@ -31,15 +35,27 @@ void Windmill::render() {
     axle.render();
 
     for (int i = 0; i < numBlades; i++) {
-        if (bladesVisible[i]) {
-            blade.setModel(spinOffset * bladesOffset[i]);
-            blade.render();
-        }
+        blade.setModel(spinOffset * bladesOffset[i]);
+        blade.render();
     }
 }
 
 void Windmill::update(float deltaT) {
     angle -= speed * deltaT;
+    List& bullets = getList<Bullet>();
+    glm::vec4 pos = getPos();
+    for (auto& bullet : bullets) {
+        glm::vec4 bulletPos = bullet->getPos();
+        float dist = std::sqrtf((pos.x - bulletPos.x) * (pos.x - bulletPos.x) +
+                                (pos.z - bulletPos.z) * (pos.z - bulletPos.z));
+        if (dist < 1.0f) {
+            bullet->deleteShape();
+            numBlades--;
+            speed *= 1.25f;
+            if (numBlades <= 0)
+                deleteShape();
+        }
+    }
 }
 
 void Windmill::setKa(glm::vec3 amb) {

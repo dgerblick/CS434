@@ -76,27 +76,29 @@ void Shapes::addVertex(std::vector<GLfloat>& a, const glm::vec3& v) {
 }
 
 void Shapes::deleteShape() {
-    deleteList.push_back(it);
+    shouldDelete = true;
 }
 
 void Shapes::listClear() {
-    list.clear();
+    shapes.clear();
 }
 
 void Shapes::step(float deltaT) {
-    for (auto& shape : list) {
-        shape->update(deltaT);
-    }
-    for (auto& shape : deleteList) {
-        list.erase(shape);
-    }
-    deleteList.clear();
-    for (auto& shape : list) {
-        shape->render();
-    }
+    std::vector<std::pair<List&, List::iterator>> deleteList;
+    for (auto& [_, list] : shapes)
+        for (auto& shape : list)
+            shape->update(deltaT);
+    for (auto& [_, list] : shapes)
+        for (auto& shape : list)
+            if (shape->shouldDelete)
+                deleteList.emplace_back(list, shape->it);
+    for (auto& [l, it] : deleteList)
+        l.erase(it);
+    for (auto& [_, list] : shapes)
+        for (auto& shape : list)
+            shape->render();
 }
 
-Shapes::List Shapes::list;
-std::list<Shapes::List::iterator> Shapes::deleteList;
+std::map<std::type_index, Shapes::List> Shapes::shapes;
 
 }  // namespace dng

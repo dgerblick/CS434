@@ -37,7 +37,6 @@ private:
     glm::mat4 axleOffset;
     int numBlades;
     std::vector<glm::mat4> bladesOffset;
-    std::vector<bool> bladesVisible;
 };
 
 }  // namespace dng

@@ -289,7 +289,7 @@ void spawnBullet() {
     flatVec.y = 0;
     flatVec = glm::normalize(flatVec);
 
-    auto& bullet = Shapes::listAdd<Bullet>(glm::vec3(0.0, 0.0, -100.0), 2.0);
+    auto& bullet = Shapes::listAdd<Bullet>(glm::vec3(0.0, 0.0, -100.0), 1.0);
     bullet.setKa(glm::vec3(0.2, 0.2, 0.2));
     bullet.setKs(glm::vec3(1, 1, 1));
     bullet.setKd(glm::vec3(0.7, 0.7, 0.7));
