@@ -64,10 +64,9 @@ void renderObjects(float deltaT) {
     light.setPos(pos);
     light.setShaders();
     Shapes::step(deltaT);
-    auto& bulletList = Shapes::getList<Bullet>();
-    for (auto& bullet : bulletList) {
-        
-    }
+    int numWindmills = Shapes::getList<Windmill>().size();
+    if (numWindmills == 0)
+        exit(0);
 }
 
 void idle() {
@@ -127,6 +126,9 @@ void kbd(unsigned char a, int x, int y) {
         break;
     case ' ':
         spawnBullet();
+        break;
+    case 'r':
+        initShapes(&params);
         break;
     case '.':
         std::cout << "cameraPos:\n"
@@ -241,7 +243,7 @@ void initializeProgram(GLuint* program) {
 }
 
 void initShapes(shaders::Params* params) {
-    const int numWindmills = 250;
+    const int numWindmills = 100;
     ::srand(::time(nullptr));
 
     Shapes::listClear();
