@@ -6,6 +6,7 @@ namespace dng::window {
 const int WIDTH = 800;
 const int HEIGHT = 800;
 
+void init();
 void display();
 
 }  // namespace dng::window
