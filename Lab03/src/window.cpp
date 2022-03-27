@@ -16,6 +16,8 @@
 namespace dng::window {
 
 std::vector<Particle> particles;
+std::vector<glm::vec2> posBuffer;
+std::vector<glm::vec2> velBuffer;
 Light light;
 shaders::Params params;
 GLuint shaderProgram;
@@ -24,11 +26,31 @@ float rand(float min = 0.0f, float max = 1.0f) {
     return min + static_cast<float>(::rand()) / (static_cast<float>(RAND_MAX / (max - min)));
 }
 
-glm::vec2 forceField(glm::vec2 pos) {
-    float distSqr = glm::dot(pos, pos);
-    if (distSqr < 0.0001f)
-        return glm::vec2(0.0f);
-    return 0.00001f * -glm::normalize(pos) / distSqr;
+glm::vec2 forceField(Particle p) {
+    glm::vec2 drag = glm::normalize(p.velocity)* -glm::dot(p.velocity, p.velocity);
+    // n-body
+    glm::vec2 force(0.0f);
+    for (int i = 0; i < particles.size(); i++) {
+        if (particles[i].position != p.position) {
+            float dist = glm::distance(particles[i].position, p.position);
+            if (dist < 0.01f)
+                dist = 0.01;
+            float magnitude = 0.0000001f * particles[i].mass * p.mass / (dist * dist);
+            force += glm::normalize(particles[i].position - p.position) * magnitude;
+        }
+    }
+    return force + drag;
+
+    // Wind + Gravity + Drag
+    // return glm::vec2(0.0001f, -0.001f) + drag;
+
+    // Orbit Center
+    // float distSqr = glm::dot(p.position, p.position);
+    // if (distSqr < 0.001f)
+    //     return glm::vec2(0.0f);
+    // return (0.00001f * -glm::normalize(p.position) / distSqr) + drag;
+
+    return drag;
 }
 
 void initializeProgram() {
@@ -77,6 +99,8 @@ void init() {
     initializeProgram();
 
     particles.reserve(numParticles);
+    posBuffer.resize(numParticles);
+    velBuffer.resize(numParticles);
     for (int i = 0; i < numParticles; i++) {
         Particle p(20, 100);
         glm::vec3 color = glm::rgbColor(glm::vec3(rand(0.0f, 360.0f), 1.0f, 1.0f));
@@ -88,8 +112,8 @@ void init() {
         p.material.ks = glm::vec3(0.0f);
         p.material.sh = 128.0f;
         p.position = glm::vec2(rand(-1.0f, 1.0f), rand(-1.0f, 1.0f));
-        p.velocity = glm::vec2(0.0f);
-        p.mass = 1.0;
+        p.velocity = glm::vec2(rand(-0.01f, 0.01f), rand(-0.01f, 0.01f));
+        p.mass = rand(0.1f, 10.0f);
         p.radius = 0.01;
         particles.push_back(p);
     }
@@ -132,12 +156,12 @@ void idle() {
 
 void timer(int t) {
     for (int i = 0; i < particles.size(); i++) {
-        glm::vec2 newPos = particles[i].position + particles[i].velocity;
-        glm::vec2 newVel =
-            particles[i].velocity + forceField(particles[i].position) / particles[i].mass;
-
-        particles[i].position = newPos;
-        particles[i].velocity = newVel;
+        posBuffer[i] = particles[i].position + particles[i].velocity;
+        velBuffer[i] = particles[i].velocity + forceField(particles[i]) / particles[i].mass;
+    }
+    for (int i = 0; i < particles.size(); i++) {
+        particles[i].position = posBuffer[i];
+        particles[i].velocity = velBuffer[i];
 
         if (particles[i].position.x > 1.0f) {
             particles[i].velocity.x = -particles[i].velocity.x;
