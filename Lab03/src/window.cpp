@@ -62,10 +62,10 @@ void init() {
     const int numParticles = 100;
     ::srand(::time(nullptr));
 
-    light.setPos(glm::vec4(0.0f, 0.0f, 10.0f, 1.0f));
+    light.setPos(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     light.setLa(glm::vec3(1.0f));
-    light.setLd(glm::vec3(1.0f));
-    light.setLs(glm::vec3(1.0f));
+    light.setLd(glm::vec3(0.0f));
+    light.setLs(glm::vec3(0.0f));
 
     initializeProgram();
 
@@ -74,14 +74,16 @@ void init() {
         Particle p(20, 100);
         glm::vec3 color = glm::rgbColor(glm::vec3(rand(0.0f, 360.0f), 1.0f, 1.0f));
         p.params = params;
-        p.material.ka = 0.1f * color;
-        p.material.kd = 0.9f * color;
-        p.material.ks = glm::vec3(1.0f);
+        // p.material.ka = 0.1f * color;
+        // p.material.kd = 0.9f * color;
+        p.material.ka = color;
+        p.material.kd = glm::vec3(0.0f);
+        p.material.ks = glm::vec3(0.0f);
         p.material.sh = 128.0f;
         p.position = glm::vec2(rand(-1.0f, 1.0f), rand(-1.0f, 1.0f));
-        p.velocity = glm::vec2(rand(-0.01f, 0.01f), rand(-0.01f, 0.01f));
-        p.mass = rand(0.01f, 1.0f);
-        p.radius = p.mass / 10.0f;
+        p.velocity = glm::vec2(rand(-0.1f, 0.1f), rand(-0.1f, 0.1f));
+        p.mass = 1.0;
+        p.radius = 0.01;
         particles.push_back(p);
     }
 }
@@ -114,6 +116,37 @@ void display() {
     glUseProgram(0);
 
     glFlush();
+    glutSwapBuffers();
+}
+
+void idle() {
+    // glutPostRedisplay();
+}
+
+void timer(int t) {
+    for (int i = 0; i < particles.size(); i++) {
+        particles[i].position += particles[i].velocity;
+        if (particles[i].position.x > 1.0f) {
+            particles[i].velocity.x = -particles[i].velocity.x;
+            particles[i].position.x = 1.0f - (particles[i].position.x - 1.0f);
+        } else if (particles[i].position.x < -1.0f) {
+            particles[i].velocity.x = -particles[i].velocity.x;
+            particles[i].position.x = -1.0f - (particles[i].position.x + 1.0f);
+        }
+        if (particles[i].position.y > 1.0f) {
+            particles[i].velocity.y = -particles[i].velocity.y;
+            particles[i].position.y = 1.0f - (particles[i].position.y - 1.0f);
+        } else if (particles[i].position.y < -1.0f) {
+            particles[i].velocity.y = -particles[i].velocity.y;
+            particles[i].position.y = -1.0f - (particles[i].position.y + 1.0f);
+        }
+    }
+    glutPostRedisplay();
+    resetTimer();
+}
+
+void resetTimer() {
+    glutTimerFunc(MAX_FRAME_TIME, timer, 0);
 }
 
 }  // namespace dng::window

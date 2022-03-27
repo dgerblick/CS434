@@ -11,7 +11,7 @@
 namespace dng {
 
 Particle::Particle() {
-    generate(55, 55);
+    generate(1, 55);
     initArrays();
 }
 

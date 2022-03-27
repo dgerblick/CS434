@@ -14,6 +14,8 @@ int main(int argc, char* argv[]) {
         std::cerr << "Error: " << glewGetErrorString(err) << std::endl;
     }
     glutDisplayFunc(dng::window::display);
+    glutIdleFunc(dng::window::idle);
+    dng::window::resetTimer();
     dng::window::init();
     glutMainLoop();
     return 0;
