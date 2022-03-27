@@ -24,6 +24,13 @@ float rand(float min = 0.0f, float max = 1.0f) {
     return min + static_cast<float>(::rand()) / (static_cast<float>(RAND_MAX / (max - min)));
 }
 
+glm::vec2 forceField(glm::vec2 pos) {
+    float distSqr = glm::dot(pos, pos);
+    if (distSqr < 0.0001f)
+        return glm::vec2(0.0f);
+    return 0.00001f * -glm::normalize(pos) / distSqr;
+}
+
 void initializeProgram() {
     std::vector<GLuint> shaderList;
 
@@ -81,7 +88,7 @@ void init() {
         p.material.ks = glm::vec3(0.0f);
         p.material.sh = 128.0f;
         p.position = glm::vec2(rand(-1.0f, 1.0f), rand(-1.0f, 1.0f));
-        p.velocity = glm::vec2(rand(-0.1f, 0.1f), rand(-0.1f, 0.1f));
+        p.velocity = glm::vec2(0.0f);
         p.mass = 1.0;
         p.radius = 0.01;
         particles.push_back(p);
@@ -125,7 +132,13 @@ void idle() {
 
 void timer(int t) {
     for (int i = 0; i < particles.size(); i++) {
-        particles[i].position += particles[i].velocity;
+        glm::vec2 newPos = particles[i].position + particles[i].velocity;
+        glm::vec2 newVel =
+            particles[i].velocity + forceField(particles[i].position) / particles[i].mass;
+
+        particles[i].position = newPos;
+        particles[i].velocity = newVel;
+
         if (particles[i].position.x > 1.0f) {
             particles[i].velocity.x = -particles[i].velocity.x;
             particles[i].position.x = 1.0f - (particles[i].position.x - 1.0f);
