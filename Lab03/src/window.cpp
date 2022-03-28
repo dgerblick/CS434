@@ -1,7 +1,5 @@
 #include <window.h>
-#include <particle.h>
-#include <shaders.h>
-#include <light.h>
+
 #include <stdlib.h>
 #include <GL/glew.h>
 #include <GL/glut.h>
@@ -9,13 +7,21 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/color_space.hpp>
+
 #include <iostream>
 #include <vector>
+#include <list>
 #include <algorithm>
+
+#include <particle.h>
+#include <shaders.h>
+#include <light.h>
+#include <mesh.h>
 
 namespace dng::window {
 
 std::vector<Particle> particles;
+std::list<Mesh> meshes;
 Light light;
 shaders::Params params;
 GLuint shaderProgram;
@@ -37,16 +43,14 @@ glm::vec2 forceField(Particle p) {
     // }
     // return force + drag;
 
-    // Wind + Gravity + Drag
-    // return glm::vec2(0.1f, -9.8f) + drag;
+    // Gravity + Drag
+    return glm::vec2(0.0f, -9.8f) + drag;
 
     // Orbit Center
-    float distSqr = glm::dot(p.position, p.position);
-    if (distSqr < 0.001f)
-        return glm::vec2(0.0f);
-    return (0.1f * -glm::normalize(p.position) / distSqr) + drag;
-
-    return drag;
+    // float distSqr = glm::dot(p.position, p.position);
+    // if (distSqr < 0.001f)
+    //     return glm::vec2(0.0f);
+    // return (0.1f * -glm::normalize(p.position) / distSqr) + drag;
 }
 
 void initializeProgram() {
@@ -78,9 +82,6 @@ void initializeProgram() {
     light.setLdToShader(glGetUniformLocation(shaderProgram, "light.ld"));
     light.setLsToShader(glGetUniformLocation(shaderProgram, "light.ls"));
     light.setLposToShader(glGetUniformLocation(shaderProgram, "light.lPos"));
-
-    // Set up camera
-    // proj = glm::perspective(80.0f, (float) wWindow / hWindow, 0.01f, 1000.f);
 }
 
 void init() {
@@ -93,6 +94,9 @@ void init() {
     light.setLs(glm::vec3(0.0f));
 
     initializeProgram();
+
+    // Load Meshes
+    meshes.emplace_back("meshes/dots.stl");
 
     particles.reserve(numParticles);
     Particle::generate(20, 100);
@@ -140,6 +144,10 @@ void display() {
         }
     }
     glUseProgram(0);
+
+    for (auto& mesh : meshes) {
+        mesh.render();
+    }
 
     glFlush();
     glutSwapBuffers();

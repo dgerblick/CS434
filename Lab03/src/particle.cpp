@@ -28,6 +28,7 @@ void Particle::render() {
     // model for normals
     glUniformMatrix3fv(params.modelViewNParameter, 1, GL_FALSE, glm::value_ptr(mv));
     glDrawArrays(GL_TRIANGLES, 0, 3 * _vertCount);
+    glBindVertexArray(0);
 }
 
 void Particle::generate(int stacks, int slices) {
