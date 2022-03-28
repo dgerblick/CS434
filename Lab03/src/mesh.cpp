@@ -78,7 +78,15 @@ Mesh::~Mesh() {
 
 void Mesh::render() {
     glBindVertexArray(_vaID);
+
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawArrays(GL_TRIANGLES, 0, 3 * _numTris);
+
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glDrawArrays(GL_TRIANGLES, 0, 3 * _numTris);
+
     glBindVertexArray(0);
 }
 

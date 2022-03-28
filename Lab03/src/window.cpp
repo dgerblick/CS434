@@ -135,20 +135,20 @@ void initializeProgram() {
 }
 
 void init() {
-    const int numParticles = 100;
+    const int numParticles = 500;
     ::srand(::time(nullptr));
 
     light.setPos(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     light.setLa(glm::vec3(1.0f));
-    light.setLd(glm::vec3(0.0f));
-    light.setLs(glm::vec3(0.0f));
+    light.setLd(glm::vec3(1.0f));
+    light.setLs(glm::vec3(1.0f));
 
     initMenu();
     initializeProgram();
 
     mesh = nullptr;
     particles.reserve(numParticles);
-    Particle::generate(20, 100);
+    Particle::generate(10, 30);
     for (int i = 0; i < numParticles; i++) {
         Particle p;
         glm::vec3 color = glm::rgbColor(glm::vec3(rand(0.0f, 360.0f), 1.0f, 1.0f));
@@ -168,44 +168,6 @@ void init() {
 }
 
 void display() {
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glBegin(GL_POLYGON);
-    {
-        glVertex3f(-1.0f, -1.0f, -10.0f);
-        glVertex3f(1.0f, -1.0f, -10.0f);
-        glVertex3f(1.0f, 1.0f, -10.0f);
-        glVertex3f(-1.0f, 1.0f, -10.0f);
-    }
-    glEnd();
-
-    glUseProgram(shaderProgram);
-    {
-        glm::mat4 proj = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f);
-        glUniformMatrix4fv(params.projParameter, 1, GL_FALSE, glm::value_ptr(proj));
-        glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f),
-                                     glm::vec3(0.0f, 1.0f, 0.0f));
-        glUniformMatrix4fv(params.viewParameter, 1, GL_FALSE, glm::value_ptr(view));
-
-        light.setShaders();
-        for (auto& particle : particles) {
-            particle.render();
-        }
-    }
-    glUseProgram(0);
-
-    if (mesh)
-        mesh->render();
-
-    glFlush();
-    glutSwapBuffers();
-}
-
-void idle() {
-    // glutPostRedisplay();
-}
-
-void timer(int t) {
     // Detect collisions, recalculate the velocity vector, and solve position DE
 #pragma omp parallel for
     for (int i = 0; i < particles.size(); i++) {
@@ -242,6 +204,44 @@ void timer(int t) {
     for (int i = 0; i < particles.size(); i++)
         particles[i].velocity += DELTA_T * forceField(particles[i]) / particles[i].mass;
 
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glBegin(GL_POLYGON);
+    {
+        glVertex3f(-1.0f, -1.0f, -5.0f);
+        glVertex3f(1.0f, -1.0f, -5.0f);
+        glVertex3f(1.0f, 1.0f, -5.0f);
+        glVertex3f(-1.0f, 1.0f, -5.0f);
+    }
+    glEnd();
+
+    glUseProgram(shaderProgram);
+    {
+        glm::mat4 proj = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 10.0f);
+        glUniformMatrix4fv(params.projParameter, 1, GL_FALSE, glm::value_ptr(proj));
+        glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+                                     glm::vec3(0.0f, 1.0f, 0.0f));
+        glUniformMatrix4fv(params.viewParameter, 1, GL_FALSE, glm::value_ptr(view));
+
+        light.setShaders();
+        for (auto& particle : particles) {
+            particle.render();
+        }
+    }
+    glUseProgram(0);
+
+    if (mesh)
+        mesh->render();
+
+    glFlush();
+    glutSwapBuffers();
+}
+
+void idle() {
+    // glutPostRedisplay();
+}
+
+void timer(int t) {
     glutPostRedisplay();
     resetTimer();
 }

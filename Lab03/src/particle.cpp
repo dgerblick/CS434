@@ -11,10 +11,6 @@
 namespace dng {
 
 void Particle::render() {
-    // glm::mat4 mv(1.0);
-    // glm::mat4 mv =
-    //     glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(radius)), glm::vec3(position,
-    //     0.0f));
     glm::mat4 mv =
         glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(position, -1.0f)), glm::vec3(radius));
     glBindVertexArray(_vaID);
