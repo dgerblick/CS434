@@ -22,7 +22,7 @@ public:
     Mesh(std::string filename);
     ~Mesh();
     void render();
-    bool intersect(Particle p, float deltaT);
+    std::pair<glm::vec2, glm::vec2> intersect(Particle p, glm::vec2 nextPos, glm::vec2 nextVel);
 
 private:
     std::vector<Triangle> _tris;
@@ -30,6 +30,10 @@ private:
     GLuint _vaID;
     GLuint _vboHandles[2];
 
+    static bool lineSegmentIntersect(glm::vec2 v0, glm::vec2 v1, glm::vec2 v2, glm::vec2 v3,
+                                     glm::vec2& out, float& dist);
+    static bool triangleIntersect(glm::vec2 v0, glm::vec2 v1, Triangle tri, glm::vec2& out,
+                                  float& dist, glm::vec2& normal);
     static bool insideTri(Triangle t, glm::vec2 p);
     static float side(glm::vec2 p, glm::vec2 v0, glm::vec2 v1);
 };

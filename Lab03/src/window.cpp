@@ -206,22 +206,18 @@ void idle() {
 }
 
 void timer(int t) {
-    std::vector<glm::vec2> buffer(particles.size());
-
-#pragma omp parallel for
-    for (int i = 0; i < particles.size(); i++)
-        buffer[i] = particles[i].velocity + DELTA_T * forceField(particles[i]) / particles[i].mass;
-
+    // Detect collisions, recalculate the velocity vector, and solve position DE
 #pragma omp parallel for
     for (int i = 0; i < particles.size(); i++) {
         auto& p = particles[i];
 
-        if (mesh && mesh->intersect(p, DELTA_T)) {
-            p.position = p.position + DELTA_T * p.velocity;
-            p.velocity = glm::vec2(0.0f);
+        glm::vec2 nextPos = p.position + DELTA_T * p.velocity;
+        if (mesh) {
+            auto nextState = mesh->intersect(p, nextPos, p.velocity);
+            p.position = nextState.first;
+            p.velocity = nextState.second;
         } else {
-            p.position = p.position + DELTA_T * p.velocity;
-            p.velocity = buffer[i];
+            p.position = nextPos;
         }
 
         if (p.position.x > 1.0f) {
@@ -239,6 +235,13 @@ void timer(int t) {
             p.position.y = -1.0f - (p.position.y + 1.0f);
         }
     }
+
+    // Accumulate the forces and solve velocity DE
+    std::vector<glm::vec2> buffer(particles.size());
+#pragma omp parallel for
+    for (int i = 0; i < particles.size(); i++)
+        particles[i].velocity += DELTA_T * forceField(particles[i]) / particles[i].mass;
+
     glutPostRedisplay();
     resetTimer();
 }
