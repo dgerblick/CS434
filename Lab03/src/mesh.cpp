@@ -7,44 +7,39 @@ Mesh::Mesh(std::string filename) {
     std::ifstream ifs(filename, std::ios::in | std::ios::binary);
     char header[80];
     ifs.read(header, sizeof(header));
-    uint32_t numTris;
-    ifs.read((char*) (&numTris), sizeof(uint32_t));
-
+    ifs.read((char*) (&_numTris), sizeof(uint32_t));
     std::vector<GLfloat> glVerts;
     std::vector<GLfloat> glNorms;
-    glVerts.reserve(9 * numTris);
-    glNorms.reserve(9 * numTris);
-
-    tris.clear();
-    tris.reserve(numTris);
-    for (int i = 0; i < numTris; i++) {
+    glVerts.reserve(9 * _numTris);
+    glNorms.reserve(9 * _numTris);
+    _segments.reserve(3 * _numTris);
+    for (int i = 0; i < _numTris; i++) {
         glm::vec3 normal;
         uint16_t attrib;
         glm::vec3 v[3];
-        glm::vec3 v1;
-        glm::vec3 v2;
 
         ifs.read((char*) (&normal), sizeof(glm::vec3));
-        for (int i = 0; i < 3; i++)
-            ifs.read((char*) (v + i), sizeof(glm::vec3));
+        for (int j = 0; j < 3; j++)
+            ifs.read((char*) (v + j), sizeof(glm::vec3));
         ifs.read((char*) (&attrib), sizeof(attrib));
 
-        Triangle t;
-        t.v0.x = v[0].x;
-        t.v0.y = v[0].y;
-        t.v1.x = v[1].x;
-        t.v1.y = v[1].y;
-        t.v2.x = v[2].x;
-        t.v2.y = v[2].y;
-        tris.push_back(t);
-
-        for (int i = 0; i < 3; i++) {
-            glVerts.push_back(v[i].x);
-            glVerts.push_back(v[i].y);
-            glVerts.push_back(v[i].z);
+        for (int j = 0; j < 3; j++) {
+            glVerts.push_back(v[j].x);
+            glVerts.push_back(v[j].y);
+            glVerts.push_back(v[j].z);
             glNorms.push_back(normal.x);
             glNorms.push_back(normal.y);
             glNorms.push_back(normal.z);
+        }
+
+        for (int j = 0; j < 3; j++) {
+            glm::vec3 v0 = v[j];
+            glm::vec3 v1 = v[(j + 1) % 3];
+            Segment s;
+            s.midpoint = (v0 + v1) / 2.0f;
+            s.normal = glm::normalize(glm::cross(v0 - v1, normal));
+            s.length = glm::distance(v0, v1);
+            _segments.push_back(s);
         }
     }
 
@@ -79,7 +74,7 @@ Mesh::~Mesh() {
 
 void Mesh::render() {
     glBindVertexArray(_vaID);
-    glDrawArrays(GL_TRIANGLES, 0, 3 * tris.size());
+    glDrawArrays(GL_TRIANGLES, 0, 3 * _numTris);
     glBindVertexArray(0);
 }
 

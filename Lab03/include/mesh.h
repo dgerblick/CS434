@@ -12,17 +12,19 @@ namespace dng {
 
 class Mesh {
 public:
-    struct Triangle {
-        glm::vec2 v0;
-        glm::vec2 v1;
-        glm::vec2 v2;
-    };
-    std::vector<Triangle> tris;
-
     Mesh(std::string filename);
     ~Mesh();
     void render();
+
 private:
+    struct Segment {
+        glm::vec3 midpoint;
+        glm::vec3 normal;
+        float length;
+    };
+    std::vector<Segment> _segments;
+
+    uint32_t _numTris;
     GLuint _vaID;
     GLuint _vboHandles[2];
 };
