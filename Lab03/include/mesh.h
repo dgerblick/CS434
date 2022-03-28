@@ -13,9 +13,9 @@ namespace dng {
 class Mesh {
 public:
     struct Triangle {
-        glm::vec3 v0;
-        glm::vec3 v1;
-        glm::vec3 v2;
+        glm::vec2 v0;
+        glm::vec2 v1;
+        glm::vec2 v2;
     };
     std::vector<Triangle> tris;
 

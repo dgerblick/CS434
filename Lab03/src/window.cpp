@@ -10,7 +10,7 @@
 
 #include <iostream>
 #include <vector>
-#include <list>
+#include <map>
 #include <algorithm>
 
 #include <particle.h>
@@ -21,10 +21,63 @@
 namespace dng::window {
 
 std::vector<Particle> particles;
-std::list<Mesh> meshes;
+std::map<std::string, Mesh> meshes;
 Light light;
 shaders::Params params;
 GLuint shaderProgram;
+
+GLuint menuID;
+GLuint loadSubmenuID;
+
+enum MenuOption {
+    LOAD_BOXES,
+    LOAD_DOTS,
+    LOAD_CIRCLE,
+    LOAD_TEXT,
+};
+
+void loadMesh(std::string filename) {
+    auto it = meshes.find(filename);
+    if (it == meshes.end())
+        meshes.emplace(filename, filename);
+    else
+        meshes.erase(it);
+}
+
+void menu(int num) {
+    MenuOption option = static_cast<MenuOption>(num);
+    switch (option) {
+    case LOAD_BOXES:
+        loadMesh("meshes/boxes.stl");
+        break;
+    case LOAD_DOTS:
+        loadMesh("meshes/dots.stl");
+        break;
+    case LOAD_CIRCLE:
+        loadMesh("meshes/hollow_circle.stl");
+        break;
+    case LOAD_TEXT:
+        loadMesh("meshes/text.stl");
+        break;
+    default:
+        break;
+    }
+    glutPostRedisplay();
+}
+
+void initMenu() {
+    // Load/Unload
+    loadSubmenuID = glutCreateMenu(menu);
+    glutAddMenuEntry("Boxes", MenuOption::LOAD_BOXES);
+    glutAddMenuEntry("Dots", MenuOption::LOAD_DOTS);
+    glutAddMenuEntry("Circle", MenuOption::LOAD_CIRCLE);
+    glutAddMenuEntry("Text", MenuOption::LOAD_TEXT);
+
+    menuID = glutCreateMenu(menu);
+    glutAddSubMenu("Load", loadSubmenuID);
+
+    glutAttachMenu(GLUT_RIGHT_BUTTON);
+}
 
 float rand(float min = 0.0f, float max = 1.0f) {
     return min + static_cast<float>(::rand()) / (static_cast<float>(RAND_MAX / (max - min)));
@@ -93,10 +146,8 @@ void init() {
     light.setLd(glm::vec3(0.0f));
     light.setLs(glm::vec3(0.0f));
 
+    initMenu();
     initializeProgram();
-
-    // Load Meshes
-    meshes.emplace_back("meshes/dots.stl");
 
     particles.reserve(numParticles);
     Particle::generate(20, 100);
@@ -145,8 +196,8 @@ void display() {
     }
     glUseProgram(0);
 
-    for (auto& mesh : meshes) {
-        mesh.render();
+    for (auto& kv : meshes) {
+        kv.second.render();
     }
 
     glFlush();
@@ -163,28 +214,30 @@ void timer(int t) {
 
 #pragma omp parallel for
     for (int i = 0; i < particles.size(); i++) {
-        posBuffer[i] = particles[i].position + DELTA_T * particles[i].velocity;
-        velBuffer[i] =
-            particles[i].velocity + DELTA_T * forceField(particles[i]) / particles[i].mass;
+        auto& p = particles[i];
+        posBuffer[i] = p.position + DELTA_T * p.velocity;
+        velBuffer[i] = p.velocity + DELTA_T * forceField(p) / p.mass;
     }
+
 #pragma omp parallel for
     for (int i = 0; i < particles.size(); i++) {
-        particles[i].position = posBuffer[i];
-        particles[i].velocity = velBuffer[i];
+        auto& p = particles[i];
+        p.position = posBuffer[i];
+        p.velocity = velBuffer[i];
 
-        if (particles[i].position.x > 1.0f) {
-            particles[i].velocity.x = -particles[i].velocity.x;
-            particles[i].position.x = 1.0f - (particles[i].position.x - 1.0f);
-        } else if (particles[i].position.x < -1.0f) {
-            particles[i].velocity.x = -particles[i].velocity.x;
-            particles[i].position.x = -1.0f - (particles[i].position.x + 1.0f);
+        if (p.position.x > 1.0f) {
+            p.velocity.x = -p.velocity.x;
+            p.position.x = 1.0f - (p.position.x - 1.0f);
+        } else if (p.position.x < -1.0f) {
+            p.velocity.x = -p.velocity.x;
+            p.position.x = -1.0f - (p.position.x + 1.0f);
         }
-        if (particles[i].position.y > 1.0f) {
-            particles[i].velocity.y = -particles[i].velocity.y;
-            particles[i].position.y = 1.0f - (particles[i].position.y - 1.0f);
-        } else if (particles[i].position.y < -1.0f) {
-            particles[i].velocity.y = -particles[i].velocity.y;
-            particles[i].position.y = -1.0f - (particles[i].position.y + 1.0f);
+        if (p.position.y > 1.0f) {
+            p.velocity.y = -p.velocity.y;
+            p.position.y = 1.0f - (p.position.y - 1.0f);
+        } else if (p.position.y < -1.0f) {
+            p.velocity.y = -p.velocity.y;
+            p.position.y = -1.0f - (p.position.y + 1.0f);
         }
     }
     glutPostRedisplay();
