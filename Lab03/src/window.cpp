@@ -34,6 +34,7 @@ enum MenuOption {
     LOAD_DOTS,
     LOAD_CIRCLE,
     LOAD_TEXT,
+    LOAD_CLEAR,
 };
 
 void loadMesh(std::string filename) {
@@ -59,6 +60,8 @@ void menu(int num) {
     case LOAD_TEXT:
         loadMesh("meshes/text.stl");
         break;
+    case LOAD_CLEAR:
+        meshes.clear();
     default:
         break;
     }
@@ -72,6 +75,7 @@ void initMenu() {
     glutAddMenuEntry("Dots", MenuOption::LOAD_DOTS);
     glutAddMenuEntry("Circle", MenuOption::LOAD_CIRCLE);
     glutAddMenuEntry("Text", MenuOption::LOAD_TEXT);
+    glutAddMenuEntry("Clear All Meshes", MenuOption::LOAD_CLEAR);
 
     menuID = glutCreateMenu(menu);
     glutAddSubMenu("Load", loadSubmenuID);

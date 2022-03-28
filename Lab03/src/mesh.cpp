@@ -20,43 +20,32 @@ Mesh::Mesh(std::string filename) {
     for (int i = 0; i < numTris; i++) {
         glm::vec3 normal;
         uint16_t attrib;
-        glm::vec3 v0;
+        glm::vec3 v[3];
         glm::vec3 v1;
         glm::vec3 v2;
 
         ifs.read((char*) (&normal), sizeof(glm::vec3));
-        ifs.read((char*) (&v0), sizeof(glm::vec3));
-        ifs.read((char*) (&v1), sizeof(glm::vec3));
-        ifs.read((char*) (&v2), sizeof(glm::vec3));
+        for (int i = 0; i < 3; i++)
+            ifs.read((char*) (v + i), sizeof(glm::vec3));
         ifs.read((char*) (&attrib), sizeof(attrib));
 
         Triangle t;
-        t.v0.x = v0.x;
-        t.v0.y = v0.y;
-        t.v1.x = v1.x;
-        t.v1.y = v1.y;
-        t.v2.x = v2.x;
-        t.v2.y = v2.y;
+        t.v0.x = v[0].x;
+        t.v0.y = v[0].y;
+        t.v1.x = v[1].x;
+        t.v1.y = v[1].y;
+        t.v2.x = v[2].x;
+        t.v2.y = v[2].y;
         tris.push_back(t);
 
-        glVerts.push_back(v0.x);
-        glVerts.push_back(v0.y);
-        glVerts.push_back(v0.z);
-        glVerts.push_back(v1.x);
-        glVerts.push_back(v1.y);
-        glVerts.push_back(v1.z);
-        glVerts.push_back(v2.x);
-        glVerts.push_back(v2.y);
-        glVerts.push_back(v2.z);
-        glNorms.push_back(normal.x);
-        glNorms.push_back(normal.y);
-        glNorms.push_back(normal.z);
-        glNorms.push_back(normal.x);
-        glNorms.push_back(normal.y);
-        glNorms.push_back(normal.z);
-        glNorms.push_back(normal.x);
-        glNorms.push_back(normal.y);
-        glNorms.push_back(normal.z);
+        for (int i = 0; i < 3; i++) {
+            glVerts.push_back(v[i].x);
+            glVerts.push_back(v[i].y);
+            glVerts.push_back(v[i].z);
+            glNorms.push_back(normal.x);
+            glNorms.push_back(normal.y);
+            glNorms.push_back(normal.z);
+        }
     }
 
     // get the vertex array handle and bind it
