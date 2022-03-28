@@ -1,4 +1,4 @@
-#include <Particle.h>
+#include <particle.h>
 #include <string>
 #include <vector>
 #include <cmath>
@@ -9,16 +9,6 @@
 #include <shaders.h>
 
 namespace dng {
-
-Particle::Particle() {
-    generate(1, 5);
-    initArrays();
-}
-
-Particle::Particle(int stacks, int slices) {
-    generate(stacks, slices);
-    initArrays();
-}
 
 void Particle::render() {
     // glm::mat4 mv(1.0);
@@ -83,6 +73,8 @@ void Particle::generate(int stacks, int slices) {
             addVertex(_normals, v);   // and add the normal vector
         }
     }
+
+    initArrays();
 }
 
 void Particle::addVertex(std::vector<GLfloat>& a, const glm::vec3& v) {
@@ -118,5 +110,13 @@ void Particle::initArrays() {
     glEnableVertexAttribArray(1);
     _normals.clear();  // no need for the normal data, it is on the GPU now
 }
+
+std::vector<GLfloat> Particle::_vertices;
+std::vector<GLfloat> Particle::_normals;
+GLuint Particle::_vboHandles[2];
+GLuint Particle::_vaID;
+GLuint Particle::_buffer;
+GLuint Particle::_vertCount;
+GLuint Particle::_normCount;
 
 }  // namespace dng

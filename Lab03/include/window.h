@@ -5,7 +5,8 @@ namespace dng::window {
 
 const int WIDTH = 800;
 const int HEIGHT = 800;
-const int MAX_FRAME_TIME = 1000 / 60.0f;
+const float DELTA_T = 1.0f / 60.0f;
+const int DELTA_T_MS = (int) (1000 * DELTA_T);
 
 void init();
 void display();

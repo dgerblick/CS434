@@ -16,21 +16,19 @@ public:
     float mass;
     float radius;
     
-    Particle();
-    Particle(int stacks, int slices);
     void render();
+    static void generate(int stacks, int slices);
 private:
-    std::vector<GLfloat> _vertices;
-    std::vector<GLfloat> _normals;
-    GLuint _vboHandles[2];
-    GLuint _vaID;
-    GLuint _buffer;
-    GLuint _vertCount;
-    GLuint _normCount;
+    static std::vector<GLfloat> _vertices;
+    static std::vector<GLfloat> _normals;
+    static GLuint _vboHandles[2];
+    static GLuint _vaID;
+    static GLuint _buffer;
+    static GLuint _vertCount;
+    static GLuint _normCount;
 
-    void generate(int stacks, int slices);
-    void addVertex(std::vector<GLfloat>& a, const glm::vec3& v);
-    void initArrays();
+    static void addVertex(std::vector<GLfloat>& a, const glm::vec3& v);
+    static void initArrays();
 };
 
 }  // namespace dng
