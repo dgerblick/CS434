@@ -8,11 +8,13 @@ Mesh::Mesh(std::string filename) {
     char header[80];
     ifs.read(header, sizeof(header));
     ifs.read((char*) (&_numTris), sizeof(uint32_t));
+
     std::vector<GLfloat> glVerts;
     std::vector<GLfloat> glNorms;
+    _tris.reserve(_numTris);
     glVerts.reserve(9 * _numTris);
     glNorms.reserve(9 * _numTris);
-    _segments.reserve(3 * _numTris);
+
     for (int i = 0; i < _numTris; i++) {
         glm::vec3 normal;
         uint16_t attrib;
@@ -32,15 +34,17 @@ Mesh::Mesh(std::string filename) {
             glNorms.push_back(normal.z);
         }
 
-        for (int j = 0; j < 3; j++) {
-            glm::vec3 v0 = v[j];
-            glm::vec3 v1 = v[(j + 1) % 3];
-            Segment s;
-            s.midpoint = (v0 + v1) / 2.0f;
-            s.normal = glm::normalize(glm::cross(v0 - v1, normal));
-            s.length = glm::distance(v0, v1);
-            _segments.push_back(s);
+        Triangle t;
+        t.v0 = glm::vec2(v[0].x, v[0].y);
+        if (side(t.v0, t.v1, t.v2) < 0.0f) {
+            t.v1 = glm::vec2(v[1].x, v[1].y);
+            t.v2 = glm::vec2(v[2].x, v[2].y);
+        } else {
+            t.v1 = glm::vec2(v[2].x, v[2].y);
+            t.v2 = glm::vec2(v[1].x, v[1].y);
         }
+
+        _tris.push_back(t);
     }
 
     // get the vertex array handle and bind it
@@ -76,6 +80,24 @@ void Mesh::render() {
     glBindVertexArray(_vaID);
     glDrawArrays(GL_TRIANGLES, 0, 3 * _numTris);
     glBindVertexArray(0);
+}
+
+bool Mesh::intersect(Particle p, float deltaT) {
+    glm::vec2 nextPos = p.position + deltaT * p.velocity;
+    for (auto& tri : _tris) {
+        if (insideTri(tri, nextPos))
+            return true;
+    }
+    return false;
+}
+
+bool Mesh::insideTri(Triangle t, glm::vec2 p) {
+    // return false;
+    return side(p, t.v0, t.v1) > 0.0f && side(p, t.v1, t.v2) > 0.0f && side(p, t.v2, t.v0) > 0.0f;
+}
+
+float Mesh::side(glm::vec2 p, glm::vec2 v0, glm::vec2 v1) {
+    return glm::dot(p - v0, glm::vec2(v1.y - v0.y, v0.x - v1.x));
 }
 
 }  // namespace dng

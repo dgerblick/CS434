@@ -10,7 +10,6 @@
 
 #include <iostream>
 #include <vector>
-#include <map>
 #include <algorithm>
 
 #include <particle.h>
@@ -21,7 +20,7 @@
 namespace dng::window {
 
 std::vector<Particle> particles;
-std::map<std::string, Mesh> meshes;
+std::unique_ptr<Mesh> mesh;
 Light light;
 shaders::Params params;
 GLuint shaderProgram;
@@ -37,31 +36,23 @@ enum MenuOption {
     LOAD_CLEAR,
 };
 
-void loadMesh(std::string filename) {
-    auto it = meshes.find(filename);
-    if (it == meshes.end())
-        meshes.emplace(filename, filename);
-    else
-        meshes.erase(it);
-}
-
 void menu(int num) {
     MenuOption option = static_cast<MenuOption>(num);
     switch (option) {
     case LOAD_BOXES:
-        loadMesh("meshes/boxes.stl");
+        mesh = std::make_unique<Mesh>("meshes/boxes.stl");
         break;
     case LOAD_DOTS:
-        loadMesh("meshes/dots.stl");
+        mesh = std::make_unique<Mesh>("meshes/dots.stl");
         break;
     case LOAD_CIRCLE:
-        loadMesh("meshes/hollow_circle.stl");
+        mesh = std::make_unique<Mesh>("meshes/hollow_circle.stl");
         break;
     case LOAD_TEXT:
-        loadMesh("meshes/text.stl");
+        mesh = std::make_unique<Mesh>("meshes/text.stl");
         break;
     case LOAD_CLEAR:
-        meshes.clear();
+        mesh.release();
     default:
         break;
     }
@@ -71,11 +62,11 @@ void menu(int num) {
 void initMenu() {
     // Load/Unload
     loadSubmenuID = glutCreateMenu(menu);
+    glutAddMenuEntry("None", MenuOption::LOAD_CLEAR);
     glutAddMenuEntry("Boxes", MenuOption::LOAD_BOXES);
     glutAddMenuEntry("Dots", MenuOption::LOAD_DOTS);
     glutAddMenuEntry("Circle", MenuOption::LOAD_CIRCLE);
     glutAddMenuEntry("Text", MenuOption::LOAD_TEXT);
-    glutAddMenuEntry("Clear All Meshes", MenuOption::LOAD_CLEAR);
 
     menuID = glutCreateMenu(menu);
     glutAddSubMenu("Load", loadSubmenuID);
@@ -89,19 +80,21 @@ float rand(float min = 0.0f, float max = 1.0f) {
 
 glm::vec2 forceField(Particle p) {
     glm::vec2 drag = glm::normalize(p.velocity) * -glm::dot(p.velocity, p.velocity);
+    if (p.velocity == glm::vec2(0.0f))
+        drag = glm::vec2(0.0f);
     // n-body
-    // glm::vec2 force(0.0f);
-    // for (int i = 0; i < particles.size(); i++) {
-    //     float dist = glm::distance(particles[i].position, p.position);
-    //     if (dist > 0.01) {
-    //         float magnitude = 0.0001 * particles[i].mass * p.mass / (dist * dist);
-    //         force += glm::normalize(particles[i].position - p.position) * magnitude;
-    //     }
-    // }
-    // return force + drag;
+    glm::vec2 force(0.0f);
+    for (int i = 0; i < particles.size(); i++) {
+        float dist = glm::distance(particles[i].position, p.position);
+        if (dist > 0.01) {
+            float magnitude = 0.0001 * particles[i].mass * p.mass / (dist * dist);
+            force += glm::normalize(particles[i].position - p.position) * magnitude;
+        }
+    }
+    return force + drag;
 
     // Gravity + Drag
-    return glm::vec2(0.0f, -9.8f) + drag;
+    // return glm::vec2(0.0f, -9.8f * p.mass) + drag;
 
     // Orbit Center
     // float distSqr = glm::dot(p.position, p.position);
@@ -142,7 +135,7 @@ void initializeProgram() {
 }
 
 void init() {
-    const int numParticles = 1000;
+    const int numParticles = 100;
     ::srand(::time(nullptr));
 
     light.setPos(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -153,6 +146,7 @@ void init() {
     initMenu();
     initializeProgram();
 
+    mesh = nullptr;
     particles.reserve(numParticles);
     Particle::generate(20, 100);
     for (int i = 0; i < numParticles; i++) {
@@ -200,9 +194,8 @@ void display() {
     }
     glUseProgram(0);
 
-    for (auto& kv : meshes) {
-        kv.second.render();
-    }
+    if (mesh)
+        mesh->render();
 
     glFlush();
     glutSwapBuffers();
@@ -213,21 +206,23 @@ void idle() {
 }
 
 void timer(int t) {
-    std::vector<glm::vec2> posBuffer(particles.size());
-    std::vector<glm::vec2> velBuffer(particles.size());
+    std::vector<glm::vec2> buffer(particles.size());
+
+#pragma omp parallel for
+    for (int i = 0; i < particles.size(); i++)
+        buffer[i] = particles[i].velocity + DELTA_T * forceField(particles[i]) / particles[i].mass;
 
 #pragma omp parallel for
     for (int i = 0; i < particles.size(); i++) {
         auto& p = particles[i];
-        posBuffer[i] = p.position + DELTA_T * p.velocity;
-        velBuffer[i] = p.velocity + DELTA_T * forceField(p) / p.mass;
-    }
 
-#pragma omp parallel for
-    for (int i = 0; i < particles.size(); i++) {
-        auto& p = particles[i];
-        p.position = posBuffer[i];
-        p.velocity = velBuffer[i];
+        if (mesh && mesh->intersect(p, DELTA_T)) {
+            p.position = p.position + DELTA_T * p.velocity;
+            p.velocity = glm::vec2(0.0f);
+        } else {
+            p.position = p.position + DELTA_T * p.velocity;
+            p.velocity = buffer[i];
+        }
 
         if (p.position.x > 1.0f) {
             p.velocity.x = -p.velocity.x;
