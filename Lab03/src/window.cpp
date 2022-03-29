@@ -33,7 +33,21 @@ enum MenuOption {
     LOAD_CIRCLE,
     LOAD_TEXT,
     LOAD_CLEAR,
+    WIND_N,
+    WIND_E,
+    WIND_S,
+    WIND_W,
+    WIND_CLEAR,
 };
+
+enum Force {
+    N_BODY,
+    GRAVITY,
+    CENTER,
+};
+
+Force force;
+glm::vec2 wind;
 
 float rand(float min = 0.0f, float max = 1.0f) {
     return min + static_cast<float>(::rand()) / (static_cast<float>(RAND_MAX / (max - min)));
@@ -60,6 +74,21 @@ void menu(int num) {
         break;
     case LOAD_CLEAR:
         mesh.release();
+    case WIND_N:
+        wind += glm::vec2(0.0f, 0.1f);
+        break;
+    case WIND_E:
+        wind += glm::vec2(0.1f, 0.0f);
+        break;
+    case WIND_S:
+        wind += glm::vec2(0.0f, -0.1f);
+        break;
+    case WIND_W:
+        wind += glm::vec2(-0.1f, 1.0f);
+        break;
+    case WIND_CLEAR:
+        wind = glm::vec2(0.0f);
+        break;
     default:
         break;
     }
@@ -101,44 +130,63 @@ void initMenu() {
     glutAddMenuEntry("Circle", MenuOption::LOAD_CIRCLE);
     glutAddMenuEntry("Text", MenuOption::LOAD_TEXT);
 
+    // Add Force Submenu
+    GLuint forceSubmenuID = glutCreateMenu([](int num) { force = static_cast<Force>(num); });
+    glutAddMenuEntry("N-Body", Force::N_BODY);
+    glutAddMenuEntry("Gravity", Force::GRAVITY);
+    glutAddMenuEntry("Center", Force::CENTER);
+
+    // Add Wind Submenu
+    GLuint windSubmenuID = glutCreateMenu(menu);
+    glutAddMenuEntry("North", MenuOption::WIND_N);
+    glutAddMenuEntry("East", MenuOption::WIND_E);
+    glutAddMenuEntry("South", MenuOption::WIND_S);
+    glutAddMenuEntry("West", MenuOption::WIND_W);
+    glutAddMenuEntry("Clear", MenuOption::WIND_CLEAR);
+
     // Add Paricle Submenu
     GLuint particleSubmenuID = glutCreateMenu(addParticles);
     glutAddMenuEntry("1", 1);
     glutAddMenuEntry("10", 10);
     glutAddMenuEntry("50", 50);
     glutAddMenuEntry("100", 100);
+    glutAddMenuEntry("500", 500);
+    glutAddMenuEntry("1000", 1000);
     glutAddMenuEntry("Clear", 0);
 
     menuID = glutCreateMenu(menu);
     glutAddSubMenu("Load", loadSubmenuID);
+    glutAddSubMenu("Force", forceSubmenuID);
+    glutAddSubMenu("Add Wind", windSubmenuID);
     glutAddSubMenu("Add Particles", particleSubmenuID);
 
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
 glm::vec2 forceField(Particle p) {
-    glm::vec2 drag = glm::normalize(p.velocity) * -glm::dot(p.velocity, p.velocity);
-    if (p.velocity == glm::vec2(0.0f))
-        drag = glm::vec2(0.0f);
-    // n-body
-    glm::vec2 force(0.0f);
-    for (int i = 0; i < particles.size(); i++) {
-        float dist = glm::distance(particles[i].position, p.position);
-        if (dist > 0.01) {
-            float magnitude = 0.0001 * particles[i].mass * p.mass / (dist * dist);
-            force += glm::normalize(particles[i].position - p.position) * magnitude;
+    glm::vec2 forceAccum = wind;
+    forceAccum += p.velocity == glm::vec2(0.0f) ?
+                      glm::vec2(0.0f) :
+                      glm::normalize(p.velocity) * -glm::dot(p.velocity, p.velocity);
+    switch (force) {
+    case N_BODY:
+        for (int i = 0; i < particles.size(); i++) {
+            float dist = glm::distance(particles[i].position, p.position);
+            if (dist > 0.01) {
+                float magnitude = 0.0001 * particles[i].mass * p.mass / (dist * dist);
+                forceAccum += glm::normalize(particles[i].position - p.position) * magnitude;
+            }
         }
+        break;
+    case GRAVITY:
+        forceAccum += glm::vec2(0.0f, -9.8f * p.mass);
+        break;
+    case CENTER:
+        if (glm::dot(p.position, p.position) > 0.001f)
+            forceAccum += (0.1f * -glm::normalize(p.position) / glm::dot(p.position, p.position));
+        break;
     }
-    return force + drag;
-
-    // Gravity + Drag
-    // return glm::vec2(0.0f, -9.8f * p.mass) + drag;
-
-    // Orbit Center
-    // float distSqr = glm::dot(p.position, p.position);
-    // if (distSqr < 0.001f)
-    //     return glm::vec2(0.0f);
-    // return (0.1f * -glm::normalize(p.position) / distSqr) + drag;
+    return forceAccum;
 }
 
 void initializeProgram() {
@@ -185,6 +233,8 @@ void init() {
     initializeProgram();
 
     mesh = nullptr;
+    force = Force::GRAVITY;
+    wind = glm::vec2(0.0f);
     particles.reserve(numParticles);
     Particle::generate(10, 30);
     for (int i = 0; i < numParticles; i++) {
