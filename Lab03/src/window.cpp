@@ -26,7 +26,6 @@ shaders::Params params;
 GLuint shaderProgram;
 
 GLuint menuID;
-GLuint loadSubmenuID;
 
 enum MenuOption {
     LOAD_BOXES,
@@ -36,20 +35,28 @@ enum MenuOption {
     LOAD_CLEAR,
 };
 
+float rand(float min = 0.0f, float max = 1.0f) {
+    return min + static_cast<float>(::rand()) / (static_cast<float>(RAND_MAX / (max - min)));
+}
+
 void menu(int num) {
     MenuOption option = static_cast<MenuOption>(num);
     switch (option) {
     case LOAD_BOXES:
         mesh = std::make_unique<Mesh>("meshes/boxes.stl");
+        mesh->isClearInside(particles);
         break;
     case LOAD_DOTS:
         mesh = std::make_unique<Mesh>("meshes/dots.stl");
+        mesh->isClearInside(particles);
         break;
     case LOAD_CIRCLE:
         mesh = std::make_unique<Mesh>("meshes/hollow_circle.stl");
+        mesh->isClearInside(particles);
         break;
     case LOAD_TEXT:
         mesh = std::make_unique<Mesh>("meshes/text.stl");
+        mesh->isClearInside(particles);
         break;
     case LOAD_CLEAR:
         mesh.release();
@@ -59,23 +66,54 @@ void menu(int num) {
     glutPostRedisplay();
 }
 
+void addParticles(int num) {
+    if (num == 0) {
+        particles.clear();
+        return;
+    }
+    particles.reserve(particles.size() + num);
+    for (int i = 0; i < num; i++) {
+        Particle p;
+        do {
+            glm::vec3 color = glm::rgbColor(glm::vec3(rand(0.0f, 360.0f), 1.0f, 1.0f));
+            p.params = params;
+            // p.material.ka = 0.1f * color;
+            // p.material.kd = 0.9f * color;
+            p.material.ka = color;
+            p.material.kd = glm::vec3(0.0f);
+            p.material.ks = glm::vec3(0.0f);
+            p.material.sh = 128.0f;
+            p.position = glm::vec2(rand(-1.0f, 1.0f), rand(-1.0f, 1.0f));
+            p.velocity = glm::vec2(rand(-0.1f, 0.1f), rand(-0.1f, 0.1f));
+            p.mass = rand(0.1f, 10.0f);
+            p.radius = 0.01;
+        } while (mesh && mesh->isInMesh(p));
+        particles.push_back(p);
+    }
+}
+
 void initMenu() {
     // Load/Unload
-    loadSubmenuID = glutCreateMenu(menu);
+    GLuint loadSubmenuID = glutCreateMenu(menu);
     glutAddMenuEntry("None", MenuOption::LOAD_CLEAR);
     glutAddMenuEntry("Boxes", MenuOption::LOAD_BOXES);
     glutAddMenuEntry("Dots", MenuOption::LOAD_DOTS);
     glutAddMenuEntry("Circle", MenuOption::LOAD_CIRCLE);
     glutAddMenuEntry("Text", MenuOption::LOAD_TEXT);
 
+    // Add Paricle Submenu
+    GLuint particleSubmenuID = glutCreateMenu(addParticles);
+    glutAddMenuEntry("1", 1);
+    glutAddMenuEntry("10", 10);
+    glutAddMenuEntry("50", 50);
+    glutAddMenuEntry("100", 100);
+    glutAddMenuEntry("Clear", 0);
+
     menuID = glutCreateMenu(menu);
     glutAddSubMenu("Load", loadSubmenuID);
+    glutAddSubMenu("Add Particles", particleSubmenuID);
 
     glutAttachMenu(GLUT_RIGHT_BUTTON);
-}
-
-float rand(float min = 0.0f, float max = 1.0f) {
-    return min + static_cast<float>(::rand()) / (static_cast<float>(RAND_MAX / (max - min)));
 }
 
 glm::vec2 forceField(Particle p) {

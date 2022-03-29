@@ -1,5 +1,7 @@
 #include <mesh.h>
 #include <fstream>
+#include <algorithm>
+#include <functional>
 
 namespace dng {
 
@@ -112,6 +114,20 @@ std::pair<glm::vec2, glm::vec2> Mesh::intersect(Particle p, glm::vec2 nextPos, g
         return std::make_pair(p.position, vel);
     }
     return std::make_pair(nextPos, nextVel);
+}
+
+void Mesh::isClearInside(std::vector<Particle>& particles) {
+    std::vector<Particle> newParticles;
+    std::copy_if(particles.begin(), particles.end(), std::back_inserter(newParticles),
+                 [this](Particle p) { return !isInMesh(p); });
+    particles = newParticles;
+}
+
+bool Mesh::isInMesh(Particle p) {
+    for (auto& tri : _tris)
+        if (insideTri(tri, p.position))
+            return true;
+    return false;
 }
 
 bool Mesh::lineSegmentIntersect(glm::vec2 v0, glm::vec2 v1, glm::vec2 v2, glm::vec2 v3,

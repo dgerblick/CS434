@@ -23,6 +23,8 @@ public:
     ~Mesh();
     void render();
     std::pair<glm::vec2, glm::vec2> intersect(Particle p, glm::vec2 nextPos, glm::vec2 nextVel);
+    void isClearInside(std::vector<Particle>& particles);
+    bool isInMesh(Particle p);
 
 private:
     std::vector<Triangle> _tris;
